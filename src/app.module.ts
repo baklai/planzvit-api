@@ -78,6 +78,7 @@ const AppStaticModule = createStaticModule('app', '/', ['/api/(.*)']);
               }
             });
           });
+
           connection.plugin(mongooseAutopopulate);
           connection.plugin(mongooseAggregatePaginate);
           connection.plugin(mongoosePaginate);
@@ -88,10 +89,10 @@ const AppStaticModule = createStaticModule('app', '/', ['/api/(.*)']);
     }),
 
     AuthModule,
-    SyslogsModule,
     ProfilesModule,
+    DepartmentsModule,
     ServicesModule,
-    DepartmentsModule
+    SyslogsModule
   ],
   controllers: [AppController],
   providers: [AppService]

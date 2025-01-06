@@ -19,8 +19,8 @@ import { Service } from './schemas/service.schema';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 
-@ApiTags('Відділи')
-@Controller('departments')
+@ApiTags('Сервіси')
+@Controller('services')
 @ApiBearerAuth('JWT Guard')
 @UseGuards(AccessTokenGuard)
 export class ServicesController {

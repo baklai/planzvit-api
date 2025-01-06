@@ -18,7 +18,7 @@ import { AdminGuard } from 'src/common/guards/administrator.guard';
 import { PaginateSyslog, Syslog } from './schemas/syslog.schema';
 import { SyslogsService } from './syslogs.service';
 
-@ApiTags('Системні журнали')
+@ApiTags('Логи системи')
 @Controller('syslogs')
 @ApiBearerAuth('JWT Guard')
 @UseGuards(AccessTokenGuard, AdminGuard)
