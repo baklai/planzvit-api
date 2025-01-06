@@ -17,10 +17,10 @@ import { AppService } from './app.service';
 
 import { AuthModule } from './auth/auth.module';
 import { ProfilesModule } from './profiles/profiles.module';
-import { ChannelsModule } from './channels/channels.module';
 import { SyslogsModule } from './syslogs/syslogs.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { ServicesModule } from './services/services.module';
 
 function createStaticModule(directory: string, serveRoot: string, exclude = ['/api/(.*)']) {
   if (!directory || !serveRoot) return [];
@@ -90,7 +90,7 @@ const AppStaticModule = createStaticModule('app', '/', ['/api/(.*)']);
     AuthModule,
     SyslogsModule,
     ProfilesModule,
-    ChannelsModule,
+    ServicesModule,
     DepartmentsModule
   ],
   controllers: [AppController],

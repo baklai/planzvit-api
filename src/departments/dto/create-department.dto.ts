@@ -1,7 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsMongoId, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
+import { Service } from 'src/services/schemas/service.schema';
 
 export class CreateDepartmentDto {
+  @ApiProperty({
+    description: 'Скорочена назва відділу (повинні бути унікальними)',
+    example: 'ВП'
+  })
+  @IsString()
+  readonly code: string;
+
   @ApiProperty({
     description: 'Назва відділу (повинні бути унікальними)',
     example: 'Відділ продажів'
@@ -9,11 +17,23 @@ export class CreateDepartmentDto {
   @IsString()
   readonly name: string;
 
-  @ApiPropertyOptional({
-    description: 'Опис відділу',
-    example: 'Відповідає за підвищення продажів і залучення клієнтів.'
+  @ApiProperty({ description: 'Номер телефону', example: '+38(234)567-89-10' })
+  @IsString()
+  @IsPhoneNumber()
+  readonly phone: string;
+
+  @ApiProperty({
+    description: 'Начальник відділу',
+    example: 'Прізвище В.В.'
   })
   @IsString()
-  @IsOptional()
-  readonly description: string;
+  readonly manager: string;
+
+  @ApiProperty({
+    description: 'Ідентифікатор профілю, пов’язаний зі сповіщенням',
+    example: ['6299b5cebf44864bfcea37a5']
+  })
+  @IsString()
+  @IsMongoId()
+  readonly services: [Service];
 }

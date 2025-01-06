@@ -1,8 +1,9 @@
-import { Get, Post, Body, Param, Delete, Put, Query, UseGuards, Controller } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiCreatedResponse,
   ApiNotFoundResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
@@ -10,22 +11,20 @@ import {
   ApiBody,
   ApiTags
 } from '@nestjs/swagger';
-import { PaginateResult } from 'mongoose';
 
-import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
-import { ChannelsService } from './channels.service';
-import { Channel, PaginateChannel } from './schemas/channel.schema';
-import { CreateChannelDto } from './dto/create-channel.dto';
-import { UpdateChannelDto } from './dto/update-channel.dto';
+import { ServicesService } from './services.service';
+import { Service } from './schemas/service.schema';
+import { CreateServiceDto } from './dto/create-service.dto';
+import { UpdateServiceDto } from './dto/update-service.dto';
 
-@ApiTags('Канали')
-@Controller('channels')
+@ApiTags('Відділи')
+@Controller('departments')
 @ApiBearerAuth('JWT Guard')
 @UseGuards(AccessTokenGuard)
-export class ChannelsController {
-  constructor(private readonly channelService: ChannelsService) {}
+export class ServicesController {
+  constructor(private readonly servicesService: ServicesService) {}
 
   @Post()
   @Roles(['user', 'admin', 'moderator'])
@@ -33,11 +32,12 @@ export class ChannelsController {
     summary: 'Створити новий запис',
     description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
   })
-  @ApiCreatedResponse({ description: 'Успіх', type: Channel })
+  @ApiCreatedResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  @ApiBody({ description: "Об'єкт тіла запиту", type: CreateChannelDto })
-  async create(@Body() createChannelDto: CreateChannelDto): Promise<Channel> {
-    return await this.channelService.create(createChannelDto);
+  @ApiConflictResponse({ description: 'Конфлікт даних' })
+  @ApiBody({ description: "Об'єкт тіла запиту", type: CreateServiceDto })
+  async create(@Body() createServiceDto: CreateServiceDto): Promise<Service> {
+    return await this.servicesService.create(createServiceDto);
   }
 
   @Get()
@@ -46,10 +46,10 @@ export class ChannelsController {
     summary: 'Отримати всі записи',
     description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
   })
-  @ApiOkResponse({ description: 'Успіх', type: PaginateChannel })
+  @ApiOkResponse({ description: 'Успіх', type: [Service] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async findAll(@Query() query: PaginateQueryDto): Promise<PaginateResult<Channel>> {
-    return await this.channelService.findAll(query);
+  async findAll(): Promise<Service[]> {
+    return await this.servicesService.findAll();
   }
 
   @Get(':id')
@@ -58,12 +58,12 @@ export class ChannelsController {
     summary: 'Отримати запис за ID',
     description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
   })
-  @ApiOkResponse({ description: 'Успіх', type: Channel })
+  @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   @ApiNotFoundResponse({ description: 'Не знайдено' })
   @ApiParam({ name: 'id', description: 'ID Ідентифікатор запису', type: String })
-  async findOneById(@Param('id') id: string): Promise<Channel> {
-    return await this.channelService.findOneById(id);
+  async findOneById(@Param('id') id: string): Promise<Service> {
+    return await this.servicesService.findOneById(id);
   }
 
   @Put(':id')
@@ -72,16 +72,17 @@ export class ChannelsController {
     summary: 'Оновити запис за ID',
     description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
   })
-  @ApiOkResponse({ description: 'Успіх', type: Channel })
+  @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   @ApiNotFoundResponse({ description: 'Не знайдено' })
+  @ApiConflictResponse({ description: 'Конфлікт даних' })
   @ApiParam({ name: 'id', description: 'ID Ідентифікатор запису', type: String })
-  @ApiBody({ description: "Об'єкт тіла запиту", type: UpdateChannelDto })
+  @ApiBody({ description: "Об'єкт тіла запиту", type: UpdateServiceDto })
   async updateOneById(
     @Param('id') id: string,
-    @Body() updateChannelDto: UpdateChannelDto
-  ): Promise<Channel> {
-    return await this.channelService.updateOneById(id, updateChannelDto);
+    @Body() updateServiceDto: UpdateServiceDto
+  ): Promise<Service> {
+    return await this.servicesService.updateOneById(id, updateServiceDto);
   }
 
   @Delete(':id')
@@ -90,11 +91,11 @@ export class ChannelsController {
     summary: 'Видалити запис за ID',
     description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
   })
-  @ApiOkResponse({ description: 'Успіх', type: Channel })
+  @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   @ApiNotFoundResponse({ description: 'Не знайдено' })
   @ApiParam({ name: 'id', description: 'ID Ідентифікатор запису', type: String })
-  async removeOneById(@Param('id') id: string): Promise<Channel> {
-    return await this.channelService.removeOneById(id);
+  async removeOneById(@Param('id') id: string): Promise<Service> {
+    return await this.servicesService.removeOneById(id);
   }
 }

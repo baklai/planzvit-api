@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDate, IsMongoId, IsOptional, IsString } from 'class-validator';
-import { HydratedDocument } from 'mongoose';
+import { IsDate, IsMongoId, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { Service } from 'src/services/schemas/service.schema';
 
 @Schema()
 export class Department {
@@ -15,6 +16,14 @@ export class Department {
   readonly id: string;
 
   @ApiProperty({
+    description: 'Скорочена назва відділу (повинні бути унікальними)',
+    example: 'ВП'
+  })
+  @IsString()
+  @Prop({ type: String, required: true, unique: true, uniqueCaseInsensitive: true, trim: true })
+  readonly code: string;
+
+  @ApiProperty({
     description: 'Назва відділу (повинні бути унікальними)',
     example: 'Відділ продажів'
   })
@@ -22,14 +31,37 @@ export class Department {
   @Prop({ type: String, required: true, unique: true, uniqueCaseInsensitive: true, trim: true })
   readonly name: string;
 
-  @ApiPropertyOptional({
-    description: 'Опис відділу',
-    example: 'Відповідає за підвищення продажів і залучення клієнтів.'
+  @ApiProperty({ description: 'Номер телефону', example: '+38(234)567-89-10' })
+  @IsString()
+  @IsPhoneNumber()
+  @Prop({
+    type: String,
+    required: true,
+    trim: true
+  })
+  readonly phone: string;
+
+  @ApiProperty({
+    description: 'Начальник відділу',
+    example: 'Прізвище В.В.'
   })
   @IsString()
-  @IsOptional()
-  @Prop({ type: String, trim: true })
-  readonly description: string;
+  @Prop({ type: String, required: true, uniqueCaseInsensitive: true, trim: true })
+  readonly manager: string;
+
+  @ApiProperty({
+    description: 'Ідентифікатор профілю, пов’язаний зі сповіщенням',
+    example: ['6299b5cebf44864bfcea37a5']
+  })
+  @IsString()
+  @IsMongoId()
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Service',
+    required: true,
+    autopopulate: false
+  })
+  readonly services: [Service];
 
   @ApiPropertyOptional({
     description: 'Дата створення запису',
