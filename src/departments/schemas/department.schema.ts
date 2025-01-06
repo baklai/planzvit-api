@@ -58,7 +58,7 @@ export class Department {
   @IsString()
   @IsMongoId()
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: 'Service',
     required: true,
     autopopulate: false

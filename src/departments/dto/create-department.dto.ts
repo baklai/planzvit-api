@@ -33,7 +33,6 @@ export class CreateDepartmentDto {
     description: 'Ідентифікатор профілю, пов’язаний зі сповіщенням',
     example: ['6299b5cebf44864bfcea37a5']
   })
-  @IsString()
-  @IsMongoId()
-  readonly services: [Service];
+  @IsMongoId({ each: true })
+  readonly services: string[];
 }
