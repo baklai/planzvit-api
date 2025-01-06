@@ -73,7 +73,6 @@ export class AuthService {
       profile.email,
       profile.fullname,
       profile.isActivated,
-      profile.isAdmin,
       profile.role
     );
 
@@ -99,7 +98,6 @@ export class AuthService {
         ...signupAuthDto,
         password: passwordHash,
         isActivated: false,
-        isAdmin: false,
         role: 'user'
       });
 
@@ -133,7 +131,6 @@ export class AuthService {
       profile.email,
       profile.fullname,
       profile.isActivated,
-      profile.isAdmin,
       profile.role
     );
 
@@ -147,12 +144,11 @@ export class AuthService {
     email: string,
     fullname: string,
     isActivated: boolean,
-    isAdmin: boolean,
     role: string
   ) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
-        { id, email, fullname, isActivated, isAdmin, role },
+        { id, email, fullname, isActivated, role },
         {
           secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
           expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN')

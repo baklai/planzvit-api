@@ -43,15 +43,6 @@ export class CreateProfileDto {
   readonly isActivated: boolean;
 
   @ApiPropertyOptional({
-    description: 'Прапорець, що вказує, чи профіль є адміністратором',
-    default: false,
-    example: false
-  })
-  @IsBoolean()
-  @IsOptional()
-  readonly isAdmin: boolean;
-
-  @ApiPropertyOptional({
     description: 'Дозволи по профілю',
     default: 'user',
     example: 'user'

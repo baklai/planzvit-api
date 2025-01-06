@@ -8,7 +8,6 @@ type JwtPayload = {
   email: string;
   fullname: string;
   isActivated: boolean;
-  isAdmin: boolean;
   role: string;
 };
 

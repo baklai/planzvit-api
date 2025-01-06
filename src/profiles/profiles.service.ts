@@ -137,7 +137,7 @@ export class ProfilesService {
     const profiles = await this.profileModel
       .find({
         isActivated: true,
-        $or: [{ scope: { $eq: scope } }, { isAdmin: true }]
+        $or: [{ scope: { $eq: scope } }, { role: 'admin' }]
       })
       .select({ email: 1 });
 
@@ -146,7 +146,7 @@ export class ProfilesService {
 
   async findEmailsIsAdmin() {
     const profiles = await this.profileModel
-      .find({ isActivated: true, isAdmin: true })
+      .find({ isActivated: true, role: 'admin' })
       .select({ email: 1 });
 
     return profiles.map(({ email }) => email);
