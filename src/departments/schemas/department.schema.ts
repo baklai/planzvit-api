@@ -2,6 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDate, IsMongoId, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
 import mongoose, { HydratedDocument } from 'mongoose';
+
+import { PaginateResponseDto } from 'src/common/dto/paginate-response.dto';
 import { Service } from 'src/services/schemas/service.schema';
 
 @Schema()
@@ -78,6 +80,11 @@ export class Department {
   @IsDate()
   @IsOptional()
   readonly updatedAt: Date;
+}
+
+export class PaginateDepartment extends PaginateResponseDto {
+  @ApiProperty({ type: [Department], description: 'Масив документів' })
+  docs: Department[];
 }
 
 export type DepartmentDocument = HydratedDocument<Department>;

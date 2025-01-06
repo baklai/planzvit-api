@@ -3,6 +3,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDate, IsMongoId, IsNumber, IsOptional, IsString } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
 
+import { PaginateResponseDto } from 'src/common/dto/paginate-response.dto';
+
 @Schema()
 export class Service {
   @ApiProperty({
@@ -53,6 +55,11 @@ export class Service {
   @IsDate()
   @IsOptional()
   readonly updatedAt: Date;
+}
+
+export class PaginateService extends PaginateResponseDto {
+  @ApiProperty({ type: [Service], description: 'Масив документів' })
+  docs: Service[];
 }
 
 export type ServiceDocument = HydratedDocument<Service>;

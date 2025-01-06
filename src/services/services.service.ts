@@ -5,15 +5,16 @@ import {
   Injectable
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Types, PaginateModel, PaginateResult, Model } from 'mongoose';
 
 import { Service } from './schemas/service.schema';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
+import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 
 @Injectable()
 export class ServicesService {
-  constructor(@InjectModel(Service.name) private readonly serviceModel: Model<Service>) {}
+  constructor(@InjectModel(Service.name) private readonly serviceModel: PaginateModel<Service>) {}
 
   async create(createServiceDto: CreateServiceDto): Promise<Service> {
     try {
@@ -26,8 +27,19 @@ export class ServicesService {
     }
   }
 
-  async findAll(): Promise<Service[]> {
-    return await this.serviceModel.find().select({ createdAt: 0, updatedAt: 0 }).exec();
+  async findAll(query: PaginateQueryDto): Promise<PaginateResult<Service>> {
+    const { offset = 0, limit = 5, sort = { fullname: 1 }, filters = {} } = query;
+
+    return await this.serviceModel.paginate(
+      { ...filters },
+      {
+        sort,
+        offset,
+        limit,
+        lean: false,
+        allowDiskUse: true
+      }
+    );
   }
 
   async findOneById(id: string): Promise<Service> {

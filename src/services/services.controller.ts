@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards, Query } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
@@ -15,9 +15,11 @@ import {
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { ServicesService } from './services.service';
-import { Service } from './schemas/service.schema';
+import { PaginateService, Service } from './schemas/service.schema';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
+import { PaginateResult } from 'mongoose';
+import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 
 @ApiTags('Сервіси')
 @Controller('services')
@@ -46,10 +48,10 @@ export class ServicesController {
     summary: 'Отримати всі записи',
     description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
   })
-  @ApiOkResponse({ description: 'Успіх', type: [Service] })
+  @ApiOkResponse({ description: 'Успіх', type: PaginateService })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async findAll(): Promise<Service[]> {
-    return await this.servicesService.findAll();
+  async findAll(@Query() query: PaginateQueryDto): Promise<PaginateResult<Service>> {
+    return await this.servicesService.findAll(query);
   }
 
   @Get(':id')

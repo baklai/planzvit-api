@@ -5,15 +5,18 @@ import {
   Injectable
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { PaginateModel, PaginateResult, Types } from 'mongoose';
 
+import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { Department } from './schemas/department.schema';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 
 @Injectable()
 export class DepartmentsService {
-  constructor(@InjectModel(Department.name) private readonly departmentModel: Model<Department>) {}
+  constructor(
+    @InjectModel(Department.name) private readonly departmentModel: PaginateModel<Department>
+  ) {}
 
   async create(createDepartmentDto: CreateDepartmentDto): Promise<Department> {
     try {
@@ -26,8 +29,19 @@ export class DepartmentsService {
     }
   }
 
-  async findAll(): Promise<Department[]> {
-    return await this.departmentModel.find().select({ createdAt: 0, updatedAt: 0 }).exec();
+  async findAll(query: PaginateQueryDto): Promise<PaginateResult<Department>> {
+    const { offset = 0, limit = 5, sort = { fullname: 1 }, filters = {} } = query;
+
+    return await this.departmentModel.paginate(
+      { ...filters },
+      {
+        sort,
+        offset,
+        limit,
+        lean: false,
+        allowDiskUse: true
+      }
+    );
   }
 
   async findOneById(id: string): Promise<Department> {

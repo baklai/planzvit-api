@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards, Query } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
@@ -18,6 +18,8 @@ import { DepartmentsService } from './departments.service';
 import { Department } from './schemas/department.schema';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { PaginateResult } from 'mongoose';
+import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 
 @ApiTags('Відділи')
 @Controller('departments')
@@ -48,8 +50,8 @@ export class DepartmentsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: [Department] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async findAll(): Promise<Department[]> {
-    return await this.departmentsService.findAll();
+  async findAll(@Query() query: PaginateQueryDto): Promise<PaginateResult<Department>> {
+    return await this.departmentsService.findAll(query);
   }
 
   @Get(':id')
