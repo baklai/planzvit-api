@@ -13,7 +13,6 @@ import { JwtService } from '@nestjs/jwt';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
-import { generatePassword } from 'src/common/utils/lib.util';
 import { ProfilesService } from 'src/profiles/profiles.service';
 import { Profile } from 'src/profiles/schemas/profile.schema';
 
@@ -47,7 +46,11 @@ export class AuthService {
   }
 
   async signin({ email, password }: SigninAuthDto): Promise<TokensDto> {
+    console.log('SigninAuthDto', email, password);
+
     const profile = await this.profileModel.findOne({ email }, '+password').exec();
+
+    console.log(profile);
 
     if (!profile) {
       throw new BadRequestException('Профіль не існує');
@@ -58,6 +61,8 @@ export class AuthService {
     }
 
     const passwordMatches = await bcrypt.compare(password, profile.password);
+
+    console.log('passwordMatches', passwordMatches);
 
     if (!passwordMatches) {
       throw new BadRequestException('Пароль неправильний');
@@ -84,15 +89,8 @@ export class AuthService {
       throw new ConflictException('Профіль вже існує');
     }
 
-    const password = generatePassword(8, {
-      numbers: true,
-      symbols: false,
-      uppercase: true,
-      excludeSimilarCharacters: true
-    });
-
     const passwordHash = await bcrypt.hash(
-      password,
+      signupAuthDto.password,
       Number(this.configService.get<number>('BCRYPT_SALT'))
     );
 
@@ -104,8 +102,6 @@ export class AuthService {
         isAdmin: false,
         role: 'user'
       });
-
-      const admins = await this.profilesService.findEmailsIsAdmin();
 
       return await this.profileModel.findById(profile.id).exec();
     } catch (error) {
