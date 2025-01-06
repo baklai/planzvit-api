@@ -30,14 +30,13 @@ export class Service {
   @Prop({ type: String, required: true, unique: true, uniqueCaseInsensitive: true, trim: true })
   readonly name: string;
 
-  @ApiProperty({ description: 'Вартість сервісу', example: '120' })
+  @ApiProperty({ description: 'Вартість сервісу', example: 120 })
   @IsNumber()
   @Prop({
     type: Number,
-    required: true,
-    trim: true
+    required: true
   })
-  readonly price: string;
+  readonly price: number;
 
   @ApiPropertyOptional({
     description: 'Дата створення запису',

@@ -16,7 +16,7 @@ export class CreateServiceDto {
   @IsString()
   readonly name: string;
 
-  @ApiProperty({ description: 'Вартість сервісу', example: '120' })
+  @ApiProperty({ description: 'Вартість сервісу', example: 120 })
   @IsNumber()
-  readonly price: string;
+  readonly price: number;
 }
