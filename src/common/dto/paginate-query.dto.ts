@@ -19,7 +19,6 @@ function convertValuesToNumber(val: Record<string, any>) {
 export class PaginateQueryDto {
   @ApiProperty({ description: 'Кількість записів на сторінці', example: 5, type: Number })
   @Min(0)
-  @Max(50)
   @IsInt()
   readonly limit: number;
 
