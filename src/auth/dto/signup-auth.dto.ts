@@ -16,7 +16,6 @@ export class SignupAuthDto {
   readonly email: string;
 
   @ApiProperty({ description: 'пароль профілю', example: '12345678' })
-  @IsEmail()
   @IsString()
   @IsDefined()
   @IsNotEmpty()
