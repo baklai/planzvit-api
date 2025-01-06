@@ -21,6 +21,7 @@ import { SyslogsModule } from './syslogs/syslogs.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { ServicesModule } from './services/services.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 function createStaticModule(directory: string, serveRoot: string, exclude = ['/api/(.*)']) {
   if (!directory || !serveRoot) return [];
@@ -92,6 +93,7 @@ const AppStaticModule = createStaticModule('app', '/', ['/api/(.*)']);
     ProfilesModule,
     DepartmentsModule,
     ServicesModule,
+    StatisticsModule,
     SyslogsModule
   ],
   controllers: [AppController],
@@ -99,6 +101,13 @@ const AppStaticModule = createStaticModule('app', '/', ['/api/(.*)']);
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).exclude().forRoutes('*');
+    consumer
+      .apply(LoggerMiddleware)
+      .exclude(
+        { path: '/syslogs', method: RequestMethod.GET },
+        { path: '/auth/:params', method: RequestMethod.GET },
+        { path: '/auth/:params', method: RequestMethod.POST }
+      )
+      .forRoutes('*');
   }
 }
