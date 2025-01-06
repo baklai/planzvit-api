@@ -1,6 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsMongoId, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
-import { Service } from 'src/services/schemas/service.schema';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsMongoId, IsPhoneNumber, IsString } from 'class-validator';
 
 export class CreateDepartmentDto {
   @ApiProperty({

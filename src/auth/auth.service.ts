@@ -4,8 +4,7 @@ import {
   BadRequestException,
   ConflictException,
   NotFoundException,
-  Injectable,
-  Scope
+  Injectable
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';

@@ -1,20 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsInt, IsObject, IsOptional, IsString, Max, Min } from 'class-validator';
-
-function convertValuesToNumber(val: Record<string, any>) {
-  const obj = { ...val };
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const value = obj[key];
-      const numericValue = parseFloat(value);
-      if (!isNaN(numericValue)) {
-        obj[key] = numericValue;
-      }
-    }
-  }
-  return obj;
-}
+import { IsInt, IsObject, IsOptional, Min } from 'class-validator';
 
 export class PaginateQueryDto {
   @ApiProperty({ description: 'Кількість записів на сторінці', example: 5, type: Number })

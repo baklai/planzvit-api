@@ -5,7 +5,7 @@ import {
   Injectable
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Types, PaginateModel, PaginateResult, Model } from 'mongoose';
+import { Types, PaginateModel, PaginateResult } from 'mongoose';
 
 import { Service } from './schemas/service.schema';
 import { CreateServiceDto } from './dto/create-service.dto';

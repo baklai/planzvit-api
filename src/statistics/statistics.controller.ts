@@ -1,7 +1,6 @@
 import { Controller, Get, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { Roles } from 'src/common/decorators/roles.decorator';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { AdminGuard } from 'src/common/guards/administrator.guard';
 import { AdminRequired } from 'src/common/decorators/admin.decorator';

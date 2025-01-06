@@ -18,9 +18,7 @@ export class NoticesService {
   ) {}
 
   async create(createNoticeDto: CreateNoticeDto): Promise<Notice[]> {
-    const { profiles, emails } = await this.profilesService.findProfilesForNotice(
-      createNoticeDto.profiles
-    );
+    const { profiles } = await this.profilesService.findProfilesForNotice(createNoticeDto.profiles);
 
     return await this.noticeModel.create(
       profiles.map(profile => {
