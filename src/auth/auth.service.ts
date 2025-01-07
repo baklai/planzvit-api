@@ -45,11 +45,7 @@ export class AuthService {
   }
 
   async signin({ email, password }: SigninAuthDto): Promise<TokensDto> {
-    console.log('SigninAuthDto', email, password);
-
     const profile = await this.profileModel.findOne({ email }, '+password').exec();
-
-    console.log(profile);
 
     if (!profile) {
       throw new BadRequestException('Профіль не існує');
@@ -60,8 +56,6 @@ export class AuthService {
     }
 
     const passwordMatches = await bcrypt.compare(password, profile.password);
-
-    console.log('passwordMatches', passwordMatches);
 
     if (!passwordMatches) {
       throw new BadRequestException('Пароль неправильний');
