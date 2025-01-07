@@ -16,17 +16,37 @@ export class StatisticsService {
     @InjectModel(Syslog.name) private readonly syslogModel: Model<Syslog>
   ) {}
 
-  async database() {
-    const [profiles, departments, services] = await Promise.all([
+  async dashboard() {
+    const [departments, services] = await Promise.all([
       this.profileModel.countDocuments(),
       this.departmentModel.countDocuments(),
       this.serviceModel.countDocuments()
     ]);
 
     return {
-      profiles,
       departments,
       services
+    };
+  }
+
+  async database() {
+    const [departments, services] = await Promise.all([
+      this.profileModel.countDocuments(),
+      this.departmentModel.countDocuments(),
+      this.serviceModel.countDocuments()
+    ]);
+
+    return {
+      departments,
+      services
+    };
+  }
+
+  async datacore() {
+    const [profiles] = await Promise.all([this.profileModel.countDocuments()]);
+
+    return {
+      profiles
     };
   }
 }

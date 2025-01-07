@@ -14,6 +14,17 @@ import { StatisticsService } from './statistics.service';
 export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}
 
+  @Get('dashboard')
+  @AdminRequired()
+  @ApiOperation({
+    summary: 'Отримати статистику',
+    description: 'Потрібені права адміністратора'
+  })
+  @HttpCode(HttpStatus.OK)
+  async dashboard() {
+    return await this.statisticsService.dashboard();
+  }
+
   @Get('database')
   @AdminRequired()
   @ApiOperation({
@@ -23,5 +34,16 @@ export class StatisticsController {
   @HttpCode(HttpStatus.OK)
   async database() {
     return await this.statisticsService.database();
+  }
+
+  @Get('datacore')
+  @AdminRequired()
+  @ApiOperation({
+    summary: 'Отримати статистику',
+    description: 'Потрібені права адміністратора'
+  })
+  @HttpCode(HttpStatus.OK)
+  async datacore() {
+    return await this.statisticsService.datacore();
   }
 }
