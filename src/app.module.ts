@@ -22,6 +22,7 @@ import { DepartmentsModule } from './departments/departments.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { ServicesModule } from './services/services.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { BranchesModule } from './branches/branches.module';
 
 function createStaticModule(directory: string, serveRoot: string, exclude = ['/api/(.*)']) {
   if (!directory || !serveRoot) return [];
@@ -93,6 +94,7 @@ const AppStaticModule = createStaticModule('app', '/', ['/api/(.*)']);
     ProfilesModule,
     DepartmentsModule,
     ServicesModule,
+    BranchesModule,
     StatisticsModule,
     SyslogsModule
   ],
