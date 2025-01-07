@@ -7,14 +7,14 @@ export class CreateDepartmentDto {
     example: 'ВП'
   })
   @IsString()
-  readonly code: string;
+  readonly name: string;
 
   @ApiProperty({
     description: 'Назва відділу (повинні бути унікальними)',
     example: 'Відділ продажів'
   })
   @IsString()
-  readonly name: string;
+  readonly description: string;
 
   @ApiProperty({ description: 'Номер телефону', example: '+38(234)567-89-10' })
   @IsString()

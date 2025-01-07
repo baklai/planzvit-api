@@ -23,7 +23,7 @@ export class Department {
   })
   @IsString()
   @Prop({ type: String, required: true, unique: true, uniqueCaseInsensitive: true, trim: true })
-  readonly code: string;
+  readonly name: string;
 
   @ApiProperty({
     description: 'Назва відділу (повинні бути унікальними)',
@@ -31,7 +31,7 @@ export class Department {
   })
   @IsString()
   @Prop({ type: String, required: true, unique: true, uniqueCaseInsensitive: true, trim: true })
-  readonly name: string;
+  readonly description: string;
 
   @ApiProperty({ description: 'Номер телефону', example: '+38(234)567-89-10' })
   @IsString()
