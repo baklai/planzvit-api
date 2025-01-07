@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+import { Branch } from 'src/branches/schemas/branch.schema';
 import { Department } from 'src/departments/schemas/department.schema';
 import { Profile } from 'src/profiles/schemas/profile.schema';
 import { Service } from 'src/services/schemas/service.schema';
@@ -11,6 +12,7 @@ import { Syslog } from 'src/syslogs/schemas/syslog.schema';
 export class StatisticsService {
   constructor(
     @InjectModel(Department.name) private readonly departmentModel: Model<Department>,
+    @InjectModel(Branch.name) private readonly branchModel: Model<Branch>,
     @InjectModel(Service.name) private readonly serviceModel: Model<Service>,
     @InjectModel(Profile.name) private readonly profileModel: Model<Profile>,
     @InjectModel(Syslog.name) private readonly syslogModel: Model<Syslog>
@@ -18,7 +20,6 @@ export class StatisticsService {
 
   async dashboard() {
     const [departments, services] = await Promise.all([
-      this.profileModel.countDocuments(),
       this.departmentModel.countDocuments(),
       this.serviceModel.countDocuments()
     ]);
@@ -30,15 +31,23 @@ export class StatisticsService {
   }
 
   async database() {
-    const [departments, services] = await Promise.all([
-      this.profileModel.countDocuments(),
-      this.departmentModel.countDocuments(),
-      this.serviceModel.countDocuments()
-    ]);
+    const [departmentsCount, servicesCount, branchesCount, [subdivisionsCount]] = await Promise.all(
+      [
+        this.departmentModel.countDocuments(),
+        this.serviceModel.countDocuments(),
+        this.branchModel.countDocuments(),
+        this.branchModel.aggregate([
+          { $unwind: '$subdivisions' },
+          { $group: { _id: null, total: { $sum: 1 } } }
+        ])
+      ]
+    );
 
     return {
-      departments,
-      services
+      departmentsCount,
+      servicesCount,
+      branchesCount,
+      subdivisionsCount: subdivisionsCount.total
     };
   }
 
