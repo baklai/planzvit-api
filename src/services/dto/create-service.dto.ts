@@ -3,7 +3,7 @@ import { IsNumber, IsString } from 'class-validator';
 
 export class CreateServiceDto {
   @ApiProperty({
-    description: 'Номер сервісу (повинні бути унікальними)',
+    description: 'Код сервісу (повинні бути унікальними)',
     example: '1234.2'
   })
   @IsString()
@@ -16,7 +16,7 @@ export class CreateServiceDto {
   @IsString()
   readonly name: string;
 
-  @ApiProperty({ description: 'Вартість сервісу', example: 120 })
+  @ApiProperty({ description: 'Вартість підтримки', example: 120 })
   @IsNumber()
   readonly price: number;
 }

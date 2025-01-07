@@ -17,12 +17,12 @@ export class Service {
   readonly id: string;
 
   @ApiProperty({
-    description: 'Номер сервісу (повинні бути унікальними)',
+    description: 'Код сервісу (повинні бути унікальними)',
     example: '1234.2'
   })
   @IsString()
   @Prop({ type: String, required: true, unique: true, uniqueCaseInsensitive: true, trim: true })
-  readonly number: string;
+  readonly code: string;
 
   @ApiProperty({
     description: 'Назва сервісу (повинні бути унікальними)',
@@ -32,7 +32,7 @@ export class Service {
   @Prop({ type: String, required: true, unique: true, uniqueCaseInsensitive: true, trim: true })
   readonly name: string;
 
-  @ApiProperty({ description: 'Вартість сервісу', example: 120 })
+  @ApiProperty({ description: 'Вартість підтримки', example: 120 })
   @IsNumber()
   @Prop({
     type: Number,
