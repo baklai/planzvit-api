@@ -32,20 +32,45 @@ export class StatisticsService {
   }
 
   async database() {
-    const [departmentsCount, servicesCount, branchesCount, subdivisionsCount] = await Promise.all([
+    const [
+      departmentsCount,
+      servicesCount,
+      branchesCount,
+      subdivisionsCount,
+      departmentChart,
+      branchChart
+    ] = await Promise.all([
       this.departmentModel.countDocuments(),
       this.serviceModel.countDocuments(),
       this.branchModel.countDocuments(),
       this.branchModel
         .aggregate([{ $unwind: '$subdivisions' }, { $count: 'count' }])
-        .then(([{ count } = { count: 0 }]) => count)
+        .then(([{ count } = { count: 0 }]) => count),
+      this.departmentModel.aggregate([
+        {
+          $project: {
+            name: 1,
+            servicesCount: { $size: { $ifNull: ['$services', []] } }
+          }
+        }
+      ]),
+      this.branchModel.aggregate([
+        {
+          $project: {
+            name: 1,
+            subdivisionsCount: { $size: { $ifNull: ['$subdivisions', []] } }
+          }
+        }
+      ])
     ]);
 
     return {
       departmentsCount,
       servicesCount,
       branchesCount,
-      subdivisionsCount
+      subdivisionsCount,
+      departmentChart,
+      branchChart
     };
   }
 
