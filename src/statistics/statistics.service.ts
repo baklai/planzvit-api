@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { count } from 'console';
 import { Model } from 'mongoose';
 
 import { Branch } from 'src/branches/schemas/branch.schema';
@@ -31,23 +32,20 @@ export class StatisticsService {
   }
 
   async database() {
-    const [departmentsCount, servicesCount, branchesCount, [subdivisionsCount]] = await Promise.all(
-      [
-        this.departmentModel.countDocuments(),
-        this.serviceModel.countDocuments(),
-        this.branchModel.countDocuments(),
-        this.branchModel.aggregate([
-          { $unwind: '$subdivisions' },
-          { $group: { _id: null, total: { $sum: 1 } } }
-        ])
-      ]
-    );
+    const [departmentsCount, servicesCount, branchesCount, subdivisionsCount] = await Promise.all([
+      this.departmentModel.countDocuments(),
+      this.serviceModel.countDocuments(),
+      this.branchModel.countDocuments(),
+      this.branchModel
+        .aggregate([{ $unwind: '$subdivisions' }, { $count: 'count' }])
+        .then(([{ count } = { count: 0 }]) => count)
+    ]);
 
     return {
       departmentsCount,
       servicesCount,
       branchesCount,
-      subdivisionsCount: subdivisionsCount.total
+      subdivisionsCount
     };
   }
 
