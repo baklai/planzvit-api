@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateServiceDto {
   @ApiProperty({
@@ -7,7 +7,7 @@ export class CreateServiceDto {
     example: '1234.2'
   })
   @IsString()
-  readonly number: string;
+  readonly code: string;
 
   @ApiProperty({
     description: 'Назва сервісу (повинні бути унікальними)',
@@ -16,7 +16,8 @@ export class CreateServiceDto {
   @IsString()
   readonly name: string;
 
-  @ApiProperty({ description: 'Вартість підтримки', example: 120 })
+  @ApiPropertyOptional({ description: 'Вартість підтримки', example: 120 })
   @IsNumber()
+  @IsOptional()
   readonly price: number;
 }

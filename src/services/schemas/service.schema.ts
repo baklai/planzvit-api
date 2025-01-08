@@ -32,11 +32,12 @@ export class Service {
   @Prop({ type: String, required: true, unique: true, uniqueCaseInsensitive: true, trim: true })
   readonly name: string;
 
-  @ApiProperty({ description: 'Вартість підтримки', example: 120 })
+  @ApiPropertyOptional({ description: 'Вартість підтримки', example: 120 })
   @IsNumber()
+  @IsOptional()
   @Prop({
     type: Number,
-    required: true
+    default: 0
   })
   readonly price: number;
 
