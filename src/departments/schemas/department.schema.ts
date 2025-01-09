@@ -44,7 +44,7 @@ export class Department {
   readonly phone: string;
 
   @ApiProperty({
-    description: 'Начальник відділу',
+    description: 'Відповідальна особа',
     example: 'Прізвище В.В.'
   })
   @IsString()
@@ -52,7 +52,7 @@ export class Department {
   readonly manager: string;
 
   @ApiProperty({
-    description: 'Ідентифікатор профілю, пов’язаний зі сповіщенням',
+    description: 'Ідентифікатор сервісу',
     example: ['6299b5cebf44864bfcea37a5']
   })
   @IsString()
@@ -60,7 +60,7 @@ export class Department {
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'Service',
-    required: true,
+    default: [],
     autopopulate: false
   })
   readonly services: [Service];

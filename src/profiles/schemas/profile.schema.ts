@@ -59,7 +59,7 @@ export class Profile {
   @ApiPropertyOptional({
     description: 'Прапорець, що вказує, чи активний профіль',
     default: false,
-    example: true
+    example: false
   })
   @IsBoolean()
   @IsOptional()
@@ -71,7 +71,6 @@ export class Profile {
     default: 'user',
     example: 'user'
   })
-  @IsArray()
   @IsString()
   @IsOptional()
   @Prop({ type: String, default: 'user' })

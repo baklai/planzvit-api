@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId, IsPhoneNumber, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsArray, IsMongoId, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
 
 export class CreateDepartmentDto {
   @ApiProperty({
@@ -22,16 +22,18 @@ export class CreateDepartmentDto {
   readonly phone: string;
 
   @ApiProperty({
-    description: 'Начальник відділу',
+    description: 'Відповідальна особа',
     example: 'Прізвище В.В.'
   })
   @IsString()
   readonly manager: string;
 
-  @ApiProperty({
-    description: 'Ідентифікатор профілю, пов’язаний зі сповіщенням',
+  @ApiPropertyOptional({
+    description: 'Ідентифікатор сервісу',
     example: ['6299b5cebf44864bfcea37a5']
   })
+  @IsArray()
+  @IsOptional()
   @IsMongoId({ each: true })
   readonly services: string[];
 }

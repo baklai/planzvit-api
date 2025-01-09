@@ -42,12 +42,11 @@ export class CreateProfileDto {
   readonly isActivated: boolean;
 
   @ApiPropertyOptional({
-    description: 'Дозволи по профілю',
+    description: 'Роль профілю',
     default: 'user',
     example: 'user'
   })
-  @IsArray()
   @IsString()
   @IsOptional()
-  readonly scope: string;
+  readonly role: string;
 }

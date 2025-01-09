@@ -69,16 +69,6 @@ export class ProfilesService {
     return profile;
   }
 
-  async findOneByEmail(email: string): Promise<Profile> {
-    const profile = await this.profileModel.findOne({ email }).exec();
-
-    if (!profile) {
-      throw new NotFoundException('Запис не знайдено');
-    }
-
-    return profile;
-  }
-
   async updateOneById(id: string, updateUserDto: UpdateProfileDto): Promise<Profile> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');
@@ -129,37 +119,5 @@ export class ProfilesService {
     });
 
     return deletedUser;
-  }
-
-  /* PUBLIC METHODS */
-
-  async findEmailsIsNotice(scope: string) {
-    const profiles = await this.profileModel
-      .find({
-        isActivated: true,
-        $or: [{ scope: { $eq: scope } }, { role: 'admin' }]
-      })
-      .select({ email: 1 });
-
-    return profiles.map(({ email }) => email);
-  }
-
-  async findEmailsIsAdmin() {
-    const profiles = await this.profileModel
-      .find({ isActivated: true, role: 'admin' })
-      .select({ email: 1 });
-
-    return profiles.map(({ email }) => email);
-  }
-
-  async findProfilesForNotice(records: string[]) {
-    const profiles = await this.profileModel
-      .find({ isActivated: true, _id: { $in: records } })
-      .select({ id: 1, email: 1 });
-
-    return {
-      profiles: profiles.map(({ id }) => id),
-      emails: profiles.map(({ email }) => email)
-    };
   }
 }

@@ -18,13 +18,15 @@ export class NoticesService {
   ) {}
 
   async create(createNoticeDto: CreateNoticeDto): Promise<Notice[]> {
-    const { profiles } = await this.profilesService.findProfilesForNotice(createNoticeDto.profiles);
+    // const { profiles } = await this.profilesService.findProfilesForNotice(createNoticeDto.profiles);
 
-    return await this.noticeModel.create(
-      profiles.map(profile => {
-        return { profile, title: createNoticeDto.title, text: createNoticeDto.text };
-      })
-    );
+    // return await this.noticeModel.create(
+    //   profiles.map(profile => {
+    //     return { profile, title: createNoticeDto.title, text: createNoticeDto.text };
+    //   })
+    // );
+
+    return [];
   }
 
   async findAll(profile: string): Promise<Notice[]> {

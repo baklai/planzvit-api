@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { count } from 'console';
 import { Model } from 'mongoose';
 
 import { Branch } from 'src/branches/schemas/branch.schema';
