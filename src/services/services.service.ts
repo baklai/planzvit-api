@@ -28,7 +28,7 @@ export class ServicesService {
   }
 
   async findAll(query: PaginateQueryDto): Promise<PaginateResult<Service>> {
-    const { offset = 0, limit = 5, sort = { number: 1 }, filters = {} } = query;
+    const { offset = 0, limit = 5, sort = { code: 1 }, filters = {} } = query;
 
     return await this.serviceModel.paginate(
       { ...filters },
