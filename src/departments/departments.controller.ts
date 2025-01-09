@@ -15,7 +15,7 @@ import {
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { DepartmentsService } from './departments.service';
-import { Department } from './schemas/department.schema';
+import { Department, PaginateDepartment } from './schemas/department.schema';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 import { PaginateResult } from 'mongoose';
@@ -48,7 +48,7 @@ export class DepartmentsController {
     summary: 'Отримати всі записи',
     description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
   })
-  @ApiOkResponse({ description: 'Успіх', type: [Department] })
+  @ApiOkResponse({ description: 'Успіх', type: PaginateDepartment })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   async findAll(@Query() query: PaginateQueryDto): Promise<PaginateResult<Department>> {
     return await this.departmentsService.findAll(query);

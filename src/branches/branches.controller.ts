@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards, Query } from '@nestjs/common';
+import { PaginateResult } from 'mongoose';
 import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
@@ -15,10 +16,9 @@ import {
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { BranchesService } from './branches.service';
-import { Branch } from './schemas/branch.schema';
+import { Branch, PaginateBranch } from './schemas/branch.schema';
 import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateBranchDto } from './dto/update-branch.dto';
-import { PaginateResult } from 'mongoose';
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 
 @ApiTags('Служби (філії)')
@@ -48,7 +48,7 @@ export class BranchesController {
     summary: 'Отримати всі записи',
     description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
   })
-  @ApiOkResponse({ description: 'Успіх', type: [Branch] })
+  @ApiOkResponse({ description: 'Успіх', type: PaginateBranch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   async findAll(@Query() query: PaginateQueryDto): Promise<PaginateResult<Branch>> {
     return await this.branchesService.findAll(query);

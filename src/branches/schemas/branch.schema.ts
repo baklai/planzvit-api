@@ -6,14 +6,19 @@ import { HydratedDocument } from 'mongoose';
 
 import { PaginateResponseDto } from 'src/common/dto/paginate-response.dto';
 
-class Subdivision {
+export class Subdivision {
+  @ApiProperty({
+    description: 'ID запису (унікальний)',
+    example: '6299b5cebf44864bfcea36d4',
+    type: String
+  })
+  @IsString()
+  @IsMongoId()
+  readonly id: string;
+
   @ApiProperty({ description: 'Назва підрозділу' })
   @IsString()
   readonly name: string;
-
-  @ApiProperty({ description: 'Повна назва підрозділу' })
-  @IsString()
-  readonly description: string;
 }
 
 @Schema()
@@ -51,7 +56,7 @@ export class Branch {
   @ValidateNested({ each: true })
   @Type(() => Subdivision)
   @Prop({
-    type: [{ name: String, description: String }],
+    type: [SchemaFactory.createForClass(Subdivision)],
     unique: true
   })
   readonly subdivisions: Subdivision[];
@@ -73,7 +78,7 @@ export class Branch {
   readonly updatedAt: Date;
 }
 
-export class PaginateDepartment extends PaginateResponseDto {
+export class PaginateBranch extends PaginateResponseDto {
   @ApiProperty({ type: [Branch], description: 'Масив документів' })
   docs: Branch[];
 }
