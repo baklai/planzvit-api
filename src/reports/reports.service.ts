@@ -83,8 +83,7 @@ export class ReportsService {
         offset,
         limit,
         lean: false,
-        allowDiskUse: true,
-        populate: [{ path: 'subdivision' }, { path: 'branch.subdivisions' }]
+        allowDiskUse: true
       }
     );
   }
