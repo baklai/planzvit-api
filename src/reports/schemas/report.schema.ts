@@ -72,19 +72,19 @@ export class Report {
   @IsNumber()
   @IsOptional()
   @Prop({ type: Number, default: 0 })
-  readonly jobsPreviousMonth: number;
+  readonly previousMonthJobCount: number;
 
   @ApiPropertyOptional({ description: 'Кількість нових робіт за поточний місяць', example: -5 })
   @IsNumber()
   @IsOptional()
   @Prop({ type: Number, default: 0 })
-  readonly jobsCurrentMonth: number;
+  readonly currentMonthJobChanges: number;
 
   @ApiPropertyOptional({ description: 'Кількість робіт всього на поточний місяць', example: 45 })
   @IsNumber()
   @IsOptional()
   @Prop({ type: Number, default: 0 })
-  readonly jobsTotalCurrentMonth: number;
+  readonly currentMonthJobCount: number;
 
   @ApiPropertyOptional({ description: 'Дата створення запису', example: new Date() })
   @IsDate()

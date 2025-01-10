@@ -33,15 +33,15 @@ export class CreateReportDto {
   @ApiPropertyOptional({ description: 'Кількість робіт - попередній місяць', example: 50 })
   @IsNumber()
   @IsOptional()
-  readonly jobsPreviousMonth: number;
+  readonly previousMonthJobCount: number;
 
   @ApiPropertyOptional({ description: 'Кількість нових робіт за поточний місяць', example: -5 })
   @IsNumber()
   @IsOptional()
-  readonly jobsCurrentMonth: number;
+  readonly currentMonthJobChanges: number;
 
   @ApiPropertyOptional({ description: 'Кількість робіт всього на поточний місяць', example: 45 })
   @IsNumber()
   @IsOptional()
-  readonly jobsTotalCurrentMonth: number;
+  readonly currentMonthJobCount: number;
 }

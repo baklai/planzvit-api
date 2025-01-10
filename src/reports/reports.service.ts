@@ -40,29 +40,57 @@ export class ReportsService {
         throw new NotFoundException('Запис не знайдено');
       }
 
-      const branches = await this.branchModel.find().exec();
+      const branches = await this.branchModel.find({}).exec();
 
-      const data = [];
+      const prevReports = await this.reportModel
+        .find(
+          {
+            department: aDepartment.id,
+            monthOfReport: monthOfReport - 1,
+            yearOfReport: yearOfReport
+          },
+          null,
+          { autopopulate: false }
+        )
+        .exec();
+
+      const reports = [];
 
       for (const service of aDepartment.services) {
         for (const branch of branches) {
           for (const subdivision of branch.subdivisions) {
-            data.push({
+            reports.push({
               monthOfReport,
               yearOfReport,
               department: aDepartment.id,
               service: service.id,
               branch: branch.id,
               subdivision: subdivision.id,
-              countJobsPreviousMonth: 0,
-              countJobsCurrentMonth: 0,
-              totalCountOfJobs: 0
+              previousMonthJobCount: 0,
+              currentMonthJobChanges: 0,
+              currentMonthJobCount: 0
             });
           }
         }
       }
 
-      await this.reportModel.insertMany(data);
+      if (prevReports.length) {
+        reports.forEach(curReport => {
+          const report = prevReports.find(
+            prevReport =>
+              prevReport?.department.toString() === curReport?.department &&
+              prevReport?.service.toString() === curReport?.service &&
+              prevReport?.branch.toString() === curReport?.branch &&
+              prevReport?.subdivision.toString() === curReport?.subdivision.toString()
+          );
+
+          if (report) {
+            curReport.previousMonthJobCount = report?.currentMonthJobCount || 0;
+          }
+        });
+      }
+
+      await this.reportModel.insertMany(reports);
 
       return true;
     } catch (error) {
