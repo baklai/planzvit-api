@@ -86,6 +86,7 @@ export class ReportsService {
 
           if (report) {
             curReport.previousMonthJobCount = report?.currentMonthJobCount || 0;
+            curReport.currentMonthJobCount = report?.currentMonthJobCount || 0;
           }
         });
       }
