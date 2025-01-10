@@ -38,6 +38,7 @@ export class DepartmentsService {
         sort,
         offset,
         limit,
+        populate: ['services'],
         lean: false,
         allowDiskUse: true
       }
