@@ -15,11 +15,13 @@ import {
 
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
+import { ProfileRole } from 'src/profiles/schemas/profile.schema';
+
 import { BranchesService } from './branches.service';
 import { Branch, PaginateBranch } from './schemas/branch.schema';
 import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateBranchDto } from './dto/update-branch.dto';
-import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 
 @ApiTags('Служби/філії')
 @Controller('branches')
@@ -32,7 +34,10 @@ export class BranchesController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Branch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -46,7 +51,10 @@ export class BranchesController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateBranch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -58,7 +66,10 @@ export class BranchesController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Branch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -72,7 +83,10 @@ export class BranchesController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Оновити запис за ID',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Branch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -91,7 +105,10 @@ export class BranchesController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Branch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

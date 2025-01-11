@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { PaginateModel, PaginateResult, Types } from 'mongoose';
 
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
+
 import { Department } from './schemas/department.schema';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';

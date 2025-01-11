@@ -7,10 +7,11 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Types, PaginateModel, PaginateResult } from 'mongoose';
 
+import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
+
 import { Service } from './schemas/service.schema';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
-import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 
 @Injectable()
 export class ServicesService {

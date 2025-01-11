@@ -12,6 +12,7 @@ import { Service } from 'src/services/schemas/service.schema';
 import { Branch } from 'src/branches/schemas/branch.schema';
 import { Report } from 'src/reports/schemas/report.schema';
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
+
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 

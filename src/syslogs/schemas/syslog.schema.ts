@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsMongoId, IsOptional, IsNumber, IsDate, IsArray } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
+
 import { PaginateResponseDto } from 'src/common/dto/paginate-response.dto';
 
 @Schema()

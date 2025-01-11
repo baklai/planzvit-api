@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { PaginateModel, PaginateResult, Types } from 'mongoose';
 
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
+
 import { Branch } from './schemas/branch.schema';
 import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateBranchDto } from './dto/update-branch.dto';

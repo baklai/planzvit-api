@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards, Query } from '@nestjs/common';
+import { PaginateResult } from 'mongoose';
 import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
@@ -14,12 +15,13 @@ import {
 
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
+import { ProfileRole } from 'src/profiles/schemas/profile.schema';
+
 import { ServicesService } from './services.service';
 import { PaginateService, Service } from './schemas/service.schema';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
-import { PaginateResult } from 'mongoose';
-import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 
 @ApiTags('Сервіси')
 @Controller('services')
@@ -32,7 +34,10 @@ export class ServicesController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -46,7 +51,10 @@ export class ServicesController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateService })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -58,7 +66,10 @@ export class ServicesController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -72,7 +83,10 @@ export class ServicesController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Оновити запис за ID',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -91,7 +105,10 @@ export class ServicesController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

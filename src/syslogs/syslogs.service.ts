@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PaginateModel, PaginateResult, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { Cron } from '@nestjs/schedule';
+
+import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 
 import { Syslog } from './schemas/syslog.schema';
 import { CreateSyslogDto } from './dto/create-syslog.dto';
-import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
-import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class SyslogsService {

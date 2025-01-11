@@ -17,6 +17,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
+import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 
 import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
@@ -34,7 +35,8 @@ export class ReportsController {
   @Roles(['moderator', 'administrator'])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: 'Необхідні ролі: [' + ['moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Boolean })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -48,7 +50,10 @@ export class ReportsController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateReport })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -60,7 +65,10 @@ export class ReportsController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Report })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -74,7 +82,10 @@ export class ReportsController {
   @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Оновити запис за ID',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Report })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -93,7 +104,10 @@ export class ReportsController {
   @Roles(['moderator', 'administrator'])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Report })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

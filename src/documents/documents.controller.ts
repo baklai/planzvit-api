@@ -10,6 +10,7 @@ import {
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
+import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 
 import { DocumentsService } from './documents.service';
 import { SubdivisionDocumentDto } from './dto/subdivision-document.dto';
@@ -27,7 +28,8 @@ export class DocumentsController {
   @Roles(['moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: 'Необхідні ролі: [' + ['moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Document })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -39,7 +41,8 @@ export class DocumentsController {
   @Roles(['moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: 'Необхідні ролі: [' + ['moderator', 'administrator'].join(',') + ']'
+    description:
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Document })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

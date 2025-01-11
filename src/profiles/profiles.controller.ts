@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, Query, UseGuards } from '@nestjs/common';
+import { PaginateResult } from 'mongoose';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -11,7 +12,6 @@ import {
   ApiBody,
   ApiTags
 } from '@nestjs/swagger';
-import { PaginateResult } from 'mongoose';
 
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';

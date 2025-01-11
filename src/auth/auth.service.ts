@@ -13,7 +13,7 @@ import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
 import { ProfilesService } from 'src/profiles/profiles.service';
-import { Profile } from 'src/profiles/schemas/profile.schema';
+import { Profile, ProfileRole } from 'src/profiles/schemas/profile.schema';
 
 import { RefreshToken } from './schemas/refreshToken.schema';
 import { SigninAuthDto } from './dto/signin-auth.dto';
@@ -91,7 +91,7 @@ export class AuthService {
         ...signupAuthDto,
         password: passwordHash,
         isActivated: false,
-        role: 'user'
+        role: ProfileRole.USER
       });
 
       return await this.profileModel.findById(profile.id).exec();
