@@ -1,5 +1,12 @@
-import { PartialType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber } from 'class-validator';
 
-import { CreateReportDto } from './create-report.dto';
+export class UpdateReportDto {
+  @ApiProperty({ description: 'Кількість нових робіт за поточний місяць', example: -5 })
+  @IsNumber()
+  readonly currentMonthJobChanges: number;
 
-export class UpdateReportDto extends PartialType(CreateReportDto) {}
+  @ApiProperty({ description: 'Кількість робіт всього на поточний місяць', example: 45 })
+  @IsNumber()
+  readonly currentMonthJobCount: number;
+}
