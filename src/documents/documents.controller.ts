@@ -23,7 +23,7 @@ import { BranchDocumentDto } from './dto/branch-document.dto';
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
-  @Get('subdivision/:id')
+  @Get('subdivision')
   @Roles(['moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',
@@ -35,7 +35,7 @@ export class DocumentsController {
     return await this.documentsService.getSubdivisionDocument(query);
   }
 
-  @Get('branch/:id')
+  @Get('branch')
   @Roles(['moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',

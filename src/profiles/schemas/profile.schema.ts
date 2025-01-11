@@ -7,12 +7,18 @@ import {
   IsPhoneNumber,
   IsBoolean,
   IsOptional,
-  IsArray,
-  IsDate
+  IsDate,
+  IsEnum
 } from 'class-validator';
 import { HydratedDocument } from 'mongoose';
 
 import { PaginateResponseDto } from 'src/common/dto/paginate-response.dto';
+
+export enum ProfileRole {
+  USER = 'user',
+  MODERATOR = 'moderator',
+  ADMINISTRATOR = 'administrator'
+}
 
 @Schema()
 export class Profile {
@@ -68,13 +74,14 @@ export class Profile {
 
   @ApiPropertyOptional({
     description: 'Дозволи по профілю',
-    default: 'user',
-    example: 'user'
+    default: ProfileRole.USER,
+    example: ProfileRole.USER,
+    enum: ProfileRole
   })
-  @IsString()
+  @IsEnum(ProfileRole)
   @IsOptional()
-  @Prop({ type: String, default: 'user' })
-  readonly role: string;
+  @Prop({ type: String, enum: ProfileRole, default: ProfileRole.USER })
+  readonly role: ProfileRole;
 
   @ApiPropertyOptional({
     description: 'Дата створення запису',

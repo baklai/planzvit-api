@@ -1,13 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsArray,
   IsBoolean,
   IsEmail,
+  IsEnum,
   IsOptional,
   IsPhoneNumber,
   IsString,
   MinLength
 } from 'class-validator';
+
+import { ProfileRole } from '../schemas/profile.schema';
 
 export class CreateProfileDto {
   @ApiProperty({ description: 'Електронна адреса профілю', example: 'john@example.com' })
@@ -39,14 +41,15 @@ export class CreateProfileDto {
   })
   @IsBoolean()
   @IsOptional()
-  readonly isActivated: boolean;
+  readonly isActivated?: boolean;
 
   @ApiPropertyOptional({
-    description: 'Роль профілю',
-    default: 'user',
-    example: 'user'
+    description: 'Дозволи по профілю',
+    default: ProfileRole.USER,
+    example: ProfileRole.USER,
+    enum: ProfileRole
   })
-  @IsString()
+  @IsEnum(ProfileRole)
   @IsOptional()
-  readonly role: string;
+  readonly role?: ProfileRole;
 }
