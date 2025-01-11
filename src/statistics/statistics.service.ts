@@ -6,6 +6,7 @@ import { Branch } from 'src/branches/schemas/branch.schema';
 import { Department } from 'src/departments/schemas/department.schema';
 import { Profile } from 'src/profiles/schemas/profile.schema';
 import { Service } from 'src/services/schemas/service.schema';
+import { Report } from 'src/reports/schemas/report.schema';
 import { Syslog } from 'src/syslogs/schemas/syslog.schema';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class StatisticsService {
     @InjectModel(Branch.name) private readonly branchModel: Model<Branch>,
     @InjectModel(Service.name) private readonly serviceModel: Model<Service>,
     @InjectModel(Profile.name) private readonly profileModel: Model<Profile>,
+    @InjectModel(Report.name) private readonly reportModel: Model<Report>,
     @InjectModel(Syslog.name) private readonly syslogModel: Model<Syslog>
   ) {}
 
@@ -34,14 +36,27 @@ export class StatisticsService {
     return { startOfWeek, endOfWeek };
   };
 
+  private getCurrentMonthAndYear = () => {
+    const currentDate = new Date();
+
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentYear = currentDate.getFullYear();
+
+    return { currentMonth, currentYear };
+  };
+
   async dashboard() {
+    const currentMonthAndYear = this.getCurrentMonthAndYear();
+
     const [
       departmentsCount,
       servicesCount,
       branchesCount,
       subdivisionsCount,
       departmentChart,
-      branchChart
+      branchChart,
+      departmentReportChart,
+      branchReportChart
     ] = await Promise.all([
       this.departmentModel.countDocuments(),
       this.serviceModel.countDocuments(),
@@ -64,6 +79,94 @@ export class StatisticsService {
             subdivisionsCount: { $size: { $ifNull: ['$subdivisions', []] } }
           }
         }
+      ]),
+      this.reportModel.aggregate([
+        {
+          $match: {
+            monthOfReport: currentMonthAndYear.currentMonth,
+            yearOfReport: currentMonthAndYear.currentYear
+          }
+        },
+        {
+          $group: {
+            _id: {
+              department: '$department'
+            },
+            currentMonthJobCount: {
+              $sum: { $ifNull: ['$currentMonthJobCount', 0] }
+            }
+          }
+        },
+        {
+          $match: {
+            currentMonthJobCount: { $gt: 0 }
+          }
+        },
+        {
+          $lookup: {
+            from: 'departments',
+            localField: '_id.department',
+            foreignField: '_id',
+            as: 'departmentDetails'
+          }
+        },
+        {
+          $unwind: {
+            path: '$departmentDetails',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            department: '$departmentDetails.name',
+            currentMonthJobCount: 1
+          }
+        }
+      ]),
+      this.reportModel.aggregate([
+        {
+          $match: {
+            monthOfReport: currentMonthAndYear.currentMonth,
+            yearOfReport: currentMonthAndYear.currentYear
+          }
+        },
+        {
+          $group: {
+            _id: {
+              branch: '$branch'
+            },
+            currentMonthJobCount: {
+              $sum: { $ifNull: ['$currentMonthJobCount', 0] }
+            }
+          }
+        },
+        {
+          $match: {
+            currentMonthJobCount: { $gt: 0 }
+          }
+        },
+        {
+          $lookup: {
+            from: 'branches',
+            localField: '_id.branch',
+            foreignField: '_id',
+            as: 'branchDetails'
+          }
+        },
+        {
+          $unwind: {
+            path: '$branchDetails',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            branch: '$branchDetails.name',
+            currentMonthJobCount: 1
+          }
+        }
       ])
     ]);
 
@@ -73,7 +176,9 @@ export class StatisticsService {
       branchesCount,
       subdivisionsCount,
       departmentChart,
-      branchChart
+      branchChart,
+      departmentReportChart,
+      branchReportChart
     };
   }
 

@@ -5,6 +5,7 @@ import { Department, DepartmentSchema } from 'src/departments/schemas/department
 import { Profile, ProfileSchema } from 'src/profiles/schemas/profile.schema';
 import { Syslog, SyslogSchema } from 'src/syslogs/schemas/syslog.schema';
 import { Service, ServiceSchema } from 'src/services/schemas/service.schema';
+import { Report, ReportSchema } from 'src/reports/schemas/report.schema';
 import { Branch, BranchSchema } from 'src/branches/schemas/branch.schema';
 
 import { StatisticsService } from './statistics.service';
@@ -17,6 +18,7 @@ import { StatisticsController } from './statistics.controller';
       { name: Branch.name, schema: BranchSchema },
       { name: Service.name, schema: ServiceSchema },
       { name: Profile.name, schema: ProfileSchema },
+      { name: Report.name, schema: ReportSchema },
       { name: Syslog.name, schema: SyslogSchema }
     ])
   ],
