@@ -12,32 +12,16 @@ import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
 import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 
-import { DocumentsService } from './documents.service';
-import { Document } from './schemas/document.schema';
-import { DocumentDto } from './dto/document.dto';
+import { SheetsService } from './sheets.service';
+import { Sheet } from './schemas/sheet.schema';
+import { SheetDto } from './dto/sheet.dto';
 
 @ApiTags('Комплексні звіти')
-@Controller('documents')
+@Controller('sheets')
 @ApiBearerAuth('JWT Guard')
 @UseGuards(AccessTokenGuard, AdminRoleGuard)
-export class DocumentsController {
-  constructor(private readonly documentsService: DocumentsService) {}
-
-  @Get('subdivisions/:id')
-  @Roles(['moderator', 'administrator'])
-  @ApiOperation({
-    summary: 'Отримати всі записи',
-    description:
-      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
-  })
-  @ApiOkResponse({ description: 'Успіх', type: Document })
-  @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getSubdivisionById(
-    @Param('id') id: string,
-    @Query() documentDto: DocumentDto
-  ): Promise<Document> {
-    return await this.documentsService.getSubdivisionById(id, documentDto);
-  }
+export class SheetsController {
+  constructor(private readonly sheetsService: SheetsService) {}
 
   @Get('branches/:id')
   @Roles(['moderator', 'administrator'])
@@ -46,12 +30,22 @@ export class DocumentsController {
     description:
       'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
-  @ApiOkResponse({ description: 'Успіх', type: Document })
+  @ApiOkResponse({ description: 'Успіх', type: Sheet })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getBranchById(
-    @Param('id') id: string,
-    @Query() documentDto: DocumentDto
-  ): Promise<Document> {
-    return await this.documentsService.getBranchById(id, documentDto);
+  async getBranchById(@Param('id') id: string, @Query() sheetDto: SheetDto): Promise<Sheet> {
+    return await this.sheetsService.getBranchById(id, sheetDto);
+  }
+
+  @Get('subdivisions/:id')
+  @Roles(['moderator', 'administrator'])
+  @ApiOperation({
+    summary: 'Отримати всі записи',
+    description:
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+  })
+  @ApiOkResponse({ description: 'Успіх', type: Sheet })
+  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  async getSubdivisionById(@Param('id') id: string, @Query() sheetDto: SheetDto): Promise<Sheet> {
+    return await this.sheetsService.getSubdivisionById(id, sheetDto);
   }
 }

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
 
-export class DocumentDto {
+export class SheetDto {
   @ApiProperty({ description: 'Місяць створення звіту', example: 12 })
   @IsNumber()
   readonly monthOfReport: number;

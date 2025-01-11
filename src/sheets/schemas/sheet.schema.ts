@@ -6,7 +6,7 @@ import { HydratedDocument } from 'mongoose';
 import { PaginateResponseDto } from 'src/common/dto/paginate-response.dto';
 
 @Schema()
-export class Document {
+export class Sheet {
   @ApiProperty({
     description: 'ID запису (унікальний)',
     example: '6299b5cebf44864bfcea36d4',
@@ -27,11 +27,11 @@ export class Document {
   readonly updatedAt: Date;
 }
 
-export class PaginateDocument extends PaginateResponseDto {
-  @ApiProperty({ type: [Document], description: 'Масив документів' })
-  docs: Document[];
+export class PaginateSheet extends PaginateResponseDto {
+  @ApiProperty({ type: [Sheet], description: 'Масив документів' })
+  docs: Sheet[];
 }
 
-export type DocumentDocument = HydratedDocument<Document>;
+export type SheetDocument = HydratedDocument<Sheet>;
 
-export const DocumentSchema = SchemaFactory.createForClass(Document);
+export const SheetSchema = SchemaFactory.createForClass(Sheet);
