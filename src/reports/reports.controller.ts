@@ -13,43 +13,42 @@ import {
   ApiTags
 } from '@nestjs/swagger';
 
+import { Roles } from 'src/common/decorators/roles.decorator';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
-import { AdminGuard } from 'src/common/guards/administrator.guard';
+import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
+import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 
 import { ReportsService } from './reports.service';
-
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { Report, PaginateReport } from './schemas/report.schema';
 
-@ApiTags('Щомічячні звіти')
+@ApiTags('Щомісячні звіти')
 @Controller('reports')
 @ApiBearerAuth('JWT Guard')
-@UseGuards(AccessTokenGuard, AdminGuard)
+@UseGuards(AccessTokenGuard, AdminRoleGuard)
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Post()
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['moderator', 'administrator'])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['moderator', 'administrator'].join(',') + ']'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Boolean })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   @ApiConflictResponse({ description: 'Конфлікт даних' })
   @ApiBody({ description: "Об'єкт тіла запиту", type: Object })
-  async create(@Body() body: Record<string, any>): Promise<Boolean> {
-    return await this.reportsService.create(body);
+  async create(@Body() createReportDto: CreateReportDto): Promise<Boolean> {
+    return await this.reportsService.create(createReportDto);
   }
 
   @Get()
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateReport })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -58,10 +57,10 @@ export class ReportsController {
   }
 
   @Get(':id')
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Report })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -72,10 +71,10 @@ export class ReportsController {
   }
 
   @Put(':id')
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Оновити запис за ID',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Report })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -91,10 +90,10 @@ export class ReportsController {
   }
 
   @Delete(':id')
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['moderator', 'administrator'])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Report })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

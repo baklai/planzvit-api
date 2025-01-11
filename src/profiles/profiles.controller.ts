@@ -15,7 +15,7 @@ import { PaginateResult } from 'mongoose';
 
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
-import { AdminGuard } from 'src/common/guards/administrator.guard';
+import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
 import { AdminRequired } from 'src/common/decorators/admin.decorator';
 
 import { ProfilesService } from './profiles.service';
@@ -27,7 +27,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 @Controller('profiles')
 @ApiBearerAuth('JWT Guard')
 @AdminRequired()
-@UseGuards(AccessTokenGuard, AdminGuard)
+@UseGuards(AccessTokenGuard, AdminRoleGuard)
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 

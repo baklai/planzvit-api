@@ -13,7 +13,7 @@ import { PaginateResult } from 'mongoose';
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { AdminRequired } from 'src/common/decorators/admin.decorator';
-import { AdminGuard } from 'src/common/guards/administrator.guard';
+import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
 
 import { PaginateSyslog, Syslog } from './schemas/syslog.schema';
 import { SyslogsService } from './syslogs.service';
@@ -21,7 +21,7 @@ import { SyslogsService } from './syslogs.service';
 @ApiTags('Логи системи')
 @Controller('syslogs')
 @ApiBearerAuth('JWT Guard')
-@UseGuards(AccessTokenGuard, AdminGuard)
+@UseGuards(AccessTokenGuard, AdminRoleGuard)
 export class SyslogsController {
   constructor(private readonly syslogService: SyslogsService) {}
 

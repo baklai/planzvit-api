@@ -24,7 +24,7 @@ export class ReportsService {
     @InjectModel(Branch.name) private readonly branchModel: Model<Branch>
   ) {}
 
-  async create(createReportDto: Record<string, any>): Promise<Boolean> {
+  async create(createReportDto: CreateReportDto): Promise<Boolean> {
     try {
       const { department, monthOfReport, yearOfReport } = createReportDto;
 

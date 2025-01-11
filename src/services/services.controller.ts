@@ -29,10 +29,10 @@ export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
   @Post()
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -43,10 +43,10 @@ export class ServicesController {
   }
 
   @Get()
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateService })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -55,10 +55,10 @@ export class ServicesController {
   }
 
   @Get(':id')
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -69,10 +69,10 @@ export class ServicesController {
   }
 
   @Put(':id')
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Оновити запис за ID',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -88,10 +88,10 @@ export class ServicesController {
   }
 
   @Delete(':id')
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

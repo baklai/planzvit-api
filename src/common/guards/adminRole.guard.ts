@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { ADMIN_KEY } from '../decorators/admin.decorator';
 
 @Injectable()
-export class AdminGuard implements CanActivate {
+export class AdminRoleGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
@@ -20,6 +20,6 @@ export class AdminGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest();
 
-    return user?.isActivated && user?.role === 'admin';
+    return user?.isActivated && user?.role === 'administrator';
   }
 }

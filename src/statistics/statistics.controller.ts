@@ -2,7 +2,7 @@ import { Controller, Get, HttpCode, HttpStatus, UseGuards } from '@nestjs/common
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
-import { AdminGuard } from 'src/common/guards/administrator.guard';
+import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
 import { AdminRequired } from 'src/common/decorators/admin.decorator';
 
 import { StatisticsService } from './statistics.service';
@@ -10,7 +10,7 @@ import { StatisticsService } from './statistics.service';
 @ApiTags('Статистика')
 @Controller('statistics')
 @ApiBearerAuth('JWT Guard')
-@UseGuards(AccessTokenGuard, AdminGuard)
+@UseGuards(AccessTokenGuard, AdminRoleGuard)
 export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}
 

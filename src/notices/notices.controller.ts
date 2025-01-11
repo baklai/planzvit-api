@@ -12,7 +12,7 @@ import {
 } from '@nestjs/swagger';
 
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
-import { AdminGuard } from 'src/common/guards/administrator.guard';
+import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
 import { NoticesService } from './notices.service';
 import { Notice } from './schemas/notice.schema';
 import { CreateNoticeDto } from './dto/create-notice.dto';
@@ -25,7 +25,7 @@ export class NoticesController {
   constructor(private readonly noticesService: NoticesService) {}
 
   @Post()
-  @UseGuards(AdminGuard)
+  @UseGuards(AdminRoleGuard)
   @ApiOperation({
     summary: 'Створити новий запис',
     description: 'Потрібені права адміністратора'
@@ -38,7 +38,7 @@ export class NoticesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all records by ID', description: 'Необхідні дозволи: []' })
+  @ApiOperation({ summary: 'Get all records by ID', description: 'Необхідні ролі: []' })
   @ApiOkResponse({ description: 'Успіх', type: [Notice] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   async findAll(@Request() req: Record<string, any>): Promise<Notice[]> {
@@ -48,7 +48,7 @@ export class NoticesController {
   @Delete(':id')
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Необхідні дозволи: []'
+    description: 'Необхідні ролі: []'
   })
   @ApiOkResponse({ description: 'Успіх', type: Notice })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsMongoId, IsNumber, IsString } from 'class-validator';
 
-export class CreateReportDto {
+export class SubdivisionDocumentDto {
   @ApiProperty({ description: 'Місяць створення звіту', example: 12 })
   @IsNumber()
   readonly monthOfReport: number;
@@ -10,8 +10,8 @@ export class CreateReportDto {
   @IsNumber()
   readonly yearOfReport: number;
 
-  @ApiProperty({ description: 'Ідентифікатор відділу', example: '6299b5cebf44864bfcea37a5' })
+  @ApiProperty({ description: 'Ідентифікатор підрозділу', example: '6299b5cebf44864bfcea37a5' })
   @IsString()
   @IsMongoId()
-  readonly department: string;
+  readonly subdivision: string;
 }

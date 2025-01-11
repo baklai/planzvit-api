@@ -29,10 +29,10 @@ export class DepartmentsController {
   constructor(private readonly departmentsService: DepartmentsService) {}
 
   @Post()
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Department })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -43,10 +43,10 @@ export class DepartmentsController {
   }
 
   @Get()
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateDepartment })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -55,10 +55,10 @@ export class DepartmentsController {
   }
 
   @Get(':id')
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Department })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -69,10 +69,10 @@ export class DepartmentsController {
   }
 
   @Put(':id')
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Оновити запис за ID',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Department })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -88,10 +88,10 @@ export class DepartmentsController {
   }
 
   @Delete(':id')
-  @Roles(['user', 'admin', 'moderator'])
+  @Roles(['user', 'moderator', 'administrator'])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Необхідні дозволи: [' + ['user', 'admin', 'moderator'].join(',') + ']'
+    description: 'Необхідні ролі: [' + ['user', 'moderator', 'administrator'].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Department })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
