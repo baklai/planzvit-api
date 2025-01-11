@@ -49,7 +49,7 @@ export class StatisticsService {
     const currentMonthAndYear = this.getCurrentMonthAndYear();
 
     const [
-      departmentsCount,
+      departmentsServicesCount,
       servicesCount,
       branchesCount,
       subdivisionsCount,
@@ -58,7 +58,13 @@ export class StatisticsService {
       departmentReportChart,
       branchReportChart
     ] = await Promise.all([
-      this.departmentModel.countDocuments(),
+      this.departmentModel
+        .aggregate([
+          { $unwind: '$services' },
+          { $group: { _id: '$services' } },
+          { $count: 'count' }
+        ])
+        .then(([{ count } = { count: 0 }]) => count),
       this.serviceModel.countDocuments(),
       this.branchModel.countDocuments(),
       this.branchModel
@@ -171,7 +177,7 @@ export class StatisticsService {
     ]);
 
     return {
-      departmentsCount,
+      departmentsServicesCount,
       servicesCount,
       branchesCount,
       subdivisionsCount,
