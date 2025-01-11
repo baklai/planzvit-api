@@ -1,14 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, PaginateModel } from 'mongoose';
+import { Model, PaginateModel, Types } from 'mongoose';
 
 import { Department } from 'src/departments/schemas/department.schema';
 import { Service } from 'src/services/schemas/service.schema';
 import { Branch } from 'src/branches/schemas/branch.schema';
 import { Document } from 'src/documents/schemas/document.schema';
 
-import { SubdivisionDocumentDto } from './dto/subdivision-document.dto';
-import { BranchDocumentDto } from './dto/branch-document.dto';
+import { DocumentDto } from './dto/document.dto';
 
 @Injectable()
 export class DocumentsService {
@@ -19,11 +18,17 @@ export class DocumentsService {
     @InjectModel(Branch.name) private readonly branchModel: Model<Branch>
   ) {}
 
-  async getSubdivisionDocument(query: SubdivisionDocumentDto): Promise<any> {
+  async getSubdivisionById(id: string, documentDto: DocumentDto): Promise<any> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Недійсний ідентифікатор запису');
+    }
     return [];
   }
 
-  async getBranchDocument(query: BranchDocumentDto): Promise<any> {
+  async getBranchById(id: string, documentDto: DocumentDto): Promise<any> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Недійсний ідентифікатор запису');
+    }
     return [];
   }
 }

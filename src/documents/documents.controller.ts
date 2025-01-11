@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -13,9 +13,8 @@ import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
 import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 
 import { DocumentsService } from './documents.service';
-import { SubdivisionDocumentDto } from './dto/subdivision-document.dto';
 import { Document } from './schemas/document.schema';
-import { BranchDocumentDto } from './dto/branch-document.dto';
+import { DocumentDto } from './dto/document.dto';
 
 @ApiTags('Комплексні звіти')
 @Controller('documents')
@@ -24,7 +23,7 @@ import { BranchDocumentDto } from './dto/branch-document.dto';
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
-  @Get('subdivision')
+  @Get('subdivisions/:id')
   @Roles(['moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',
@@ -33,11 +32,14 @@ export class DocumentsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: Document })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getSubdivisionDocument(@Query() query: SubdivisionDocumentDto): Promise<Document> {
-    return await this.documentsService.getSubdivisionDocument(query);
+  async getSubdivisionById(
+    @Param('id') id: string,
+    @Query() documentDto: DocumentDto
+  ): Promise<Document> {
+    return await this.documentsService.getSubdivisionById(id, documentDto);
   }
 
-  @Get('branch')
+  @Get('branches/:id')
   @Roles(['moderator', 'administrator'])
   @ApiOperation({
     summary: 'Отримати всі записи',
@@ -46,7 +48,10 @@ export class DocumentsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: Document })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getBranchDocument(@Query() query: BranchDocumentDto): Promise<Document> {
-    return await this.documentsService.getBranchDocument(query);
+  async getBranchById(
+    @Param('id') id: string,
+    @Query() documentDto: DocumentDto
+  ): Promise<Document> {
+    return await this.documentsService.getBranchById(id, documentDto);
   }
 }
