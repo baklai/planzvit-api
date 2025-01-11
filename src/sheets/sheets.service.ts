@@ -35,45 +35,133 @@ export class SheetsService {
           yearOfReport
         }
       },
+      // Группировка по branch, subdivision и service
       {
         $group: {
           _id: {
-            service: '$service',
-            branch: '$branch'
+            branch: '$branch',
+            subdivision: '$subdivision',
+            service: '$service'
           },
           currentMonthJobCount: {
             $sum: { $ifNull: ['$currentMonthJobCount', 0] }
           }
         }
       },
-      {
-        $match: {
-          currentMonthJobCount: { $gt: 0 }
-        }
-      },
+      // Подтягиваем данные о service
       {
         $lookup: {
-          from: 'services',
+          from: 'services', // Название коллекции services
           localField: '_id.service',
           foreignField: '_id',
-          as: 'service'
+          as: 'serviceDetails'
         }
       },
       {
         $unwind: {
-          path: '$service',
+          path: '$serviceDetails',
           preserveNullAndEmptyArrays: true
         }
       },
+      // Группируем данные внутри subdivision
+      {
+        $group: {
+          _id: {
+            branch: '$_id.branch',
+            subdivision: '$_id.subdivision'
+          },
+          services: {
+            $push: {
+              serviceId: '$_id.service',
+              currentMonthJobCount: '$currentMonthJobCount',
+              code: '$serviceDetails.code',
+              name: '$serviceDetails.name',
+              price: '$serviceDetails.price'
+            }
+          },
+          currentMonthJobCount: { $sum: '$currentMonthJobCount' }
+        }
+      },
+      // Группируем по branch
+      {
+        $group: {
+          _id: '$_id.branch',
+          subdivisions: {
+            $push: {
+              subdivisionId: '$_id.subdivision',
+              currentMonthJobCount: '$currentMonthJobCount',
+              services: '$services'
+            }
+          },
+          totalJobCount: { $sum: '$currentMonthJobCount' }
+        }
+      },
+      // Подтягиваем данные Branch
+      {
+        $lookup: {
+          from: 'branches',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'branch'
+        }
+      },
+      {
+        $unwind: {
+          path: '$branch',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      // Формируем финальный ответ
       {
         $project: {
           _id: 0,
-          id: '$service._id',
-          code: '$service.code',
-          name: '$service.name',
-          price: '$service.price',
-          branch: '$_id.branch',
-          currentMonthJobCount: 1
+          branchId: '$_id',
+          branchName: '$branch.name',
+          totalJobCount: 1,
+          subdivisions: {
+            $map: {
+              input: '$subdivisions',
+              as: 'subdivision',
+              in: {
+                id: '$$subdivision.subdivisionId',
+                name: {
+                  $let: {
+                    vars: {
+                      matchedSubdivision: {
+                        $arrayElemAt: [
+                          {
+                            $filter: {
+                              input: '$branch.subdivisions',
+                              as: 'sub',
+                              cond: {
+                                $eq: ['$$sub._id', '$$subdivision.subdivisionId']
+                              }
+                            }
+                          },
+                          0
+                        ]
+                      }
+                    },
+                    in: '$$matchedSubdivision.name'
+                  }
+                },
+                currentMonthJobCount: '$$subdivision.currentMonthJobCount',
+                services: {
+                  $map: {
+                    input: '$$subdivision.services',
+                    as: 'service',
+                    in: {
+                      id: '$$service.serviceId',
+                      code: '$$service.code',
+                      name: '$$service.name',
+                      price: '$$service.price',
+                      currentMonthJobCount: '$$service.currentMonthJobCount'
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     ]);
