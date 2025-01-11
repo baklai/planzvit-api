@@ -19,14 +19,45 @@ export class StatisticsService {
   ) {}
 
   async dashboard() {
-    const [departments, services] = await Promise.all([
+    const [
+      departmentsCount,
+      servicesCount,
+      branchesCount,
+      subdivisionsCount,
+      departmentChart,
+      branchChart
+    ] = await Promise.all([
       this.departmentModel.countDocuments(),
-      this.serviceModel.countDocuments()
+      this.serviceModel.countDocuments(),
+      this.branchModel.countDocuments(),
+      this.branchModel
+        .aggregate([{ $unwind: '$subdivisions' }, { $count: 'count' }])
+        .then(([{ count } = { count: 0 }]) => count),
+      this.departmentModel.aggregate([
+        {
+          $project: {
+            name: 1,
+            servicesCount: { $size: { $ifNull: ['$services', []] } }
+          }
+        }
+      ]),
+      this.branchModel.aggregate([
+        {
+          $project: {
+            name: 1,
+            subdivisionsCount: { $size: { $ifNull: ['$subdivisions', []] } }
+          }
+        }
+      ])
     ]);
 
     return {
-      departments,
-      services
+      departmentsCount,
+      servicesCount,
+      branchesCount,
+      subdivisionsCount,
+      departmentChart,
+      branchChart
     };
   }
 
