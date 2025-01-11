@@ -18,6 +18,22 @@ export class StatisticsService {
     @InjectModel(Syslog.name) private readonly syslogModel: Model<Syslog>
   ) {}
 
+  private getStartAndEndDateOfWeek = (date: Date) => {
+    const firstDayOfWeek = 1;
+    const day = date.getDay();
+    const diff = (day < firstDayOfWeek ? 7 : 0) + day - firstDayOfWeek;
+
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - diff);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    return { startOfWeek, endOfWeek };
+  };
+
   async dashboard() {
     const [
       departmentsCount,
@@ -105,10 +121,120 @@ export class StatisticsService {
   }
 
   async datacore() {
-    const [profiles] = await Promise.all([this.profileModel.countDocuments()]);
+    const currentDate = new Date();
+
+    const firstDayOfPreviousMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() - 1,
+      1
+    );
+
+    const { startOfWeek, endOfWeek } = this.getStartAndEndDateOfWeek(currentDate);
+
+    const [
+      profilesCount,
+      departmentsCount,
+      servicesCount,
+      branchesCount,
+      subdivisionsCount,
+      activityAPIChrat,
+      activityProfilesChart
+    ] = await Promise.all([
+      this.profileModel.countDocuments(),
+      this.departmentModel.countDocuments(),
+      this.serviceModel.countDocuments(),
+      this.branchModel.countDocuments(),
+      this.branchModel
+        .aggregate([{ $unwind: '$subdivisions' }, { $count: 'count' }])
+        .then(([{ count } = { count: 0 }]) => count),
+      this.syslogModel.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: firstDayOfPreviousMonth,
+              $lt: currentDate
+            }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$createdAt' },
+              month: { $month: '$createdAt' },
+              day: { $dayOfMonth: '$createdAt' }
+            },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            date: {
+              $dateFromParts: {
+                year: '$_id.year',
+                month: '$_id.month',
+                day: '$_id.day'
+              }
+            },
+            count: 1
+          }
+        },
+        {
+          $sort: {
+            date: 1
+          }
+        }
+      ]),
+      this.syslogModel.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: startOfWeek,
+              $lte: endOfWeek
+            },
+            profile: {
+              $nin: ['anonymous', 'system']
+            }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              profile: '$profile',
+              method: '$method'
+            },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $group: {
+            _id: '$_id.profile',
+            methods: {
+              $push: {
+                method: '$_id.method',
+                count: '$count'
+              }
+            }
+          }
+        },
+        {
+          $project: {
+            profile: '$_id',
+            methods: 1,
+            _id: 0
+          }
+        }
+      ])
+    ]);
 
     return {
-      profiles
+      profilesCount,
+      departmentsCount,
+      servicesCount,
+      branchesCount,
+      subdivisionsCount,
+      activityAPIChrat,
+      activityProfilesChart
     };
   }
 }
