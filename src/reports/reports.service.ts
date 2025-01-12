@@ -67,9 +67,9 @@ export class ReportsService {
               service: service.id,
               branch: branch.id,
               subdivision: subdivision.id,
-              previousMonthJobCount: 0,
-              currentMonthJobChanges: 0,
-              currentMonthJobCount: 0
+              previousJobCount: 0,
+              changesJobCount: 0,
+              currentJobCount: 0
             });
           }
         }
@@ -86,8 +86,8 @@ export class ReportsService {
           );
 
           if (report) {
-            curReport.previousMonthJobCount = report?.currentMonthJobCount || 0;
-            curReport.currentMonthJobCount = report?.currentMonthJobCount || 0;
+            curReport.previousJobCount = report?.currentJobCount || 0;
+            curReport.currentJobCount = report?.currentJobCount || 0;
           }
         });
       }

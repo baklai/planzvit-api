@@ -68,23 +68,23 @@ export class Report {
   @Prop({ type: mongoose.Schema.Types.ObjectId, default: null, autopopulate: true })
   readonly subdivision: Subdivision;
 
-  @ApiPropertyOptional({ description: 'Кількість робіт - попередній місяць', example: 50 })
+  @ApiPropertyOptional({ description: 'Кількість робіт за попередній місяць', example: 50 })
   @IsNumber()
   @IsOptional()
   @Prop({ type: Number, default: 0 })
-  readonly previousMonthJobCount: number;
+  readonly previousJobCount: number;
 
   @ApiPropertyOptional({ description: 'Кількість нових робіт за поточний місяць', example: -5 })
   @IsNumber()
   @IsOptional()
   @Prop({ type: Number, default: 0 })
-  readonly currentMonthJobChanges: number;
+  readonly changesJobCount: number;
 
   @ApiPropertyOptional({ description: 'Кількість робіт всього на поточний місяць', example: 45 })
   @IsNumber()
   @IsOptional()
   @Prop({ type: Number, default: 0 })
-  readonly currentMonthJobCount: number;
+  readonly currentJobCount: number;
 
   @ApiPropertyOptional({ description: 'Дата створення запису', example: new Date() })
   @IsDate()

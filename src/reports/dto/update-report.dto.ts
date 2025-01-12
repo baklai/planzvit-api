@@ -4,9 +4,9 @@ import { IsNumber } from 'class-validator';
 export class UpdateReportDto {
   @ApiProperty({ description: 'Кількість нових робіт за поточний місяць', example: -5 })
   @IsNumber()
-  readonly currentMonthJobChanges: number;
+  readonly changesJobCount: number;
 
   @ApiProperty({ description: 'Кількість робіт всього на поточний місяць', example: 45 })
   @IsNumber()
-  readonly currentMonthJobCount: number;
+  readonly currentJobCount: number;
 }
