@@ -15,7 +15,6 @@ export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}
 
   @Get('dashboard')
-  @AdminRequired()
   @ApiOperation({
     summary: 'Отримати статистику',
     description: 'Потрібені права адміністратора'
@@ -26,7 +25,6 @@ export class StatisticsController {
   }
 
   @Get('database')
-  @AdminRequired()
   @ApiOperation({
     summary: 'Отримати статистику',
     description: 'Потрібені права адміністратора'
@@ -37,7 +35,6 @@ export class StatisticsController {
   }
 
   @Get('datacore')
-  @AdminRequired()
   @ApiOperation({
     summary: 'Отримати статистику',
     description: 'Потрібені права адміністратора'
