@@ -42,8 +42,8 @@ export class SheetsService {
             subdivision: '$subdivision',
             service: '$service'
           },
-          currentMonthJobCount: {
-            $sum: { $ifNull: ['$currentMonthJobCount', 0] }
+          currentJobCount: {
+            $sum: { $ifNull: ['$currentJobCount', 0] }
           }
         }
       },
@@ -62,6 +62,13 @@ export class SheetsService {
         }
       },
       {
+        $addFields: {
+          currentPrice: {
+            $multiply: ['$serviceDetails.price', '$currentJobCount']
+          }
+        }
+      },
+      {
         $group: {
           _id: {
             branch: '$_id.branch',
@@ -70,13 +77,15 @@ export class SheetsService {
           services: {
             $push: {
               serviceId: '$_id.service',
-              currentMonthJobCount: '$currentMonthJobCount',
+              currentJobCount: '$currentJobCount',
+              currentPrice: '$currentPrice',
               code: '$serviceDetails.code',
               name: '$serviceDetails.name',
               price: '$serviceDetails.price'
             }
           },
-          currentMonthJobCount: { $sum: '$currentMonthJobCount' }
+          currentJobCount: { $sum: '$currentJobCount' },
+          totalPrice: { $sum: '$currentPrice' }
         }
       },
       {
@@ -85,11 +94,13 @@ export class SheetsService {
           subdivisions: {
             $push: {
               subdivisionId: '$_id.subdivision',
-              currentMonthJobCount: '$currentMonthJobCount',
+              currentJobCount: '$currentJobCount',
+              totalPrice: '$totalPrice',
               services: '$services'
             }
           },
-          totalJobCount: { $sum: '$currentMonthJobCount' }
+          totalJobCount: { $sum: '$currentJobCount' },
+          totalPrice: { $sum: '$totalPrice' }
         }
       },
       {
@@ -109,9 +120,9 @@ export class SheetsService {
       {
         $project: {
           _id: 0,
-          branchId: '$_id',
-          branchName: '$branch.name',
-          branchTotalJobCount: '$totalJobCount',
+          branch: '$_id',
+          totalJobCount: '$totalJobCount',
+          totalPrice: '$totalPrice',
           subdivisions: {
             $map: {
               input: '$subdivisions',
@@ -139,7 +150,8 @@ export class SheetsService {
                     in: '$$matchedSubdivision.name'
                   }
                 },
-                currentMonthJobCount: '$$subdivision.currentMonthJobCount',
+                totalJobCount: '$$subdivision.currentJobCount',
+                totalPrice: '$$subdivision.totalPrice',
                 services: {
                   $map: {
                     input: '$$subdivision.services',
@@ -149,7 +161,8 @@ export class SheetsService {
                       code: '$$service.code',
                       name: '$$service.name',
                       price: '$$service.price',
-                      currentMonthJobCount: '$$service.currentMonthJobCount'
+                      totalJobCount: '$$service.currentJobCount',
+                      totalPrice: '$$service.currentPrice'
                     }
                   }
                 }
