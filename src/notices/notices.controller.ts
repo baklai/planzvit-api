@@ -11,8 +11,10 @@ import {
   ApiTags
 } from '@nestjs/swagger';
 
+import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
-import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 
 import { NoticesService } from './notices.service';
 import { Notice } from './schemas/notice.schema';
@@ -21,15 +23,16 @@ import { CreateNoticeDto } from './dto/create-notice.dto';
 @ApiTags('Повідомлення')
 @Controller('notices')
 @ApiBearerAuth('JWT Guard')
-@UseGuards(AccessTokenGuard)
+@UseGuards(AccessTokenGuard, RolesGuard)
 export class NoticesController {
   constructor(private readonly noticesService: NoticesService) {}
 
   @Post()
-  @UseGuards(AdminRoleGuard)
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: 'Потрібені права адміністратора'
+    description:
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: [Notice] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -39,6 +42,14 @@ export class NoticesController {
   }
 
   @Get()
+  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @ApiOperation({
+    summary: 'Отримати всі записи',
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
+  })
   @ApiOperation({ summary: 'Get all records by ID', description: 'Необхідні ролі: []' })
   @ApiOkResponse({ description: 'Успіх', type: [Notice] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -47,9 +58,13 @@ export class NoticesController {
   }
 
   @Delete(':id')
+  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Необхідні ролі: []'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Notice })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

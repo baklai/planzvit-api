@@ -2,22 +2,27 @@ import { Controller, Get, HttpCode, HttpStatus, UseGuards } from '@nestjs/common
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
-import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
-import { AdminRequired } from 'src/common/decorators/admin.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 
 import { StatisticsService } from './statistics.service';
 
 @ApiTags('Статистика')
 @Controller('statistics')
 @ApiBearerAuth('JWT Guard')
-@UseGuards(AccessTokenGuard, AdminRoleGuard)
+@UseGuards(AccessTokenGuard, RolesGuard)
 export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}
 
   @Get('dashboard')
+  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати статистику',
-    description: 'Потрібені права адміністратора'
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
   })
   @HttpCode(HttpStatus.OK)
   async dashboard() {
@@ -25,9 +30,11 @@ export class StatisticsController {
   }
 
   @Get('database')
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати статистику',
-    description: 'Потрібені права адміністратора'
+    description:
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @HttpCode(HttpStatus.OK)
   async database() {
@@ -35,9 +42,10 @@ export class StatisticsController {
   }
 
   @Get('datacore')
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати статистику',
-    description: 'Потрібені права адміністратора'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @HttpCode(HttpStatus.OK)
   async datacore() {

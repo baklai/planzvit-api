@@ -17,6 +17,7 @@ import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { ProfileRole } from 'src/profiles/schemas/profile.schema';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 
 import { ServicesService } from './services.service';
 import { PaginateService, Service } from './schemas/service.schema';
@@ -26,18 +27,16 @@ import { UpdateServiceDto } from './dto/update-service.dto';
 @ApiTags('Сервіси')
 @Controller('services')
 @ApiBearerAuth('JWT Guard')
-@UseGuards(AccessTokenGuard)
+@UseGuards(AccessTokenGuard, RolesGuard)
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
   @Post()
-  @Roles(['user', 'moderator', 'administrator'])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
     description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -48,13 +47,11 @@ export class ServicesController {
   }
 
   @Get()
-  @Roles(['user', 'moderator', 'administrator'])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати всі записи',
     description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateService })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -63,13 +60,11 @@ export class ServicesController {
   }
 
   @Get(':id')
-  @Roles(['user', 'moderator', 'administrator'])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати запис за ID',
     description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -80,13 +75,11 @@ export class ServicesController {
   }
 
   @Put(':id')
-  @Roles(['user', 'moderator', 'administrator'])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Оновити запис за ID',
     description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -102,13 +95,11 @@ export class ServicesController {
   }
 
   @Delete(':id')
-  @Roles(['user', 'moderator', 'administrator'])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
     description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Service })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

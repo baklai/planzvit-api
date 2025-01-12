@@ -12,8 +12,9 @@ import {
 
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
-import { AdminRequired } from 'src/common/decorators/admin.decorator';
-import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 
 import { PaginateSyslog, Syslog } from './schemas/syslog.schema';
 import { SyslogsService } from './syslogs.service';
@@ -21,15 +22,15 @@ import { SyslogsService } from './syslogs.service';
 @ApiTags('Логи системи')
 @Controller('syslogs')
 @ApiBearerAuth('JWT Guard')
-@UseGuards(AccessTokenGuard, AdminRoleGuard)
+@UseGuards(AccessTokenGuard, RolesGuard)
 export class SyslogsController {
   constructor(private readonly syslogService: SyslogsService) {}
 
   @Get()
-  @AdminRequired()
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: 'Потрібені права адміністратора'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateSyslog })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -38,10 +39,10 @@ export class SyslogsController {
   }
 
   @Delete()
-  @AdminRequired()
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити всі записи',
-    description: 'Потрібені права адміністратора'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: String })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -50,10 +51,10 @@ export class SyslogsController {
   }
 
   @Get(':id')
-  @AdminRequired()
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description: 'Потрібені права адміністратора'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Syslog })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -64,10 +65,10 @@ export class SyslogsController {
   }
 
   @Delete(':id')
-  @AdminRequired()
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Потрібені права адміністратора'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Syslog })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

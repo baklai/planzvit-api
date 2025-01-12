@@ -9,7 +9,7 @@ import {
 
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
-import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 
 import { SheetsService } from './sheets.service';
@@ -19,12 +19,12 @@ import { SheetDto } from './dto/sheet.dto';
 @ApiTags('Комплексні звіти')
 @Controller('sheets')
 @ApiBearerAuth('JWT Guard')
-@UseGuards(AccessTokenGuard, AdminRoleGuard)
+@UseGuards(AccessTokenGuard, RolesGuard)
 export class SheetsController {
   constructor(private readonly sheetsService: SheetsService) {}
 
   @Get('branches/:id')
-  @Roles(['moderator', 'administrator'])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати всі записи',
     description:
@@ -37,7 +37,7 @@ export class SheetsController {
   }
 
   @Get('subdivisions/:id')
-  @Roles(['moderator', 'administrator'])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати всі записи',
     description:

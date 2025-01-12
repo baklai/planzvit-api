@@ -15,26 +15,26 @@ import {
 
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
-import { AdminRoleGuard } from 'src/common/guards/adminRole.guard';
-import { AdminRequired } from 'src/common/decorators/admin.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 import { ProfilesService } from './profiles.service';
-import { PaginateProfile, Profile } from './schemas/profile.schema';
+import { PaginateProfile, Profile, ProfileRole } from './schemas/profile.schema';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @ApiTags('Профілі')
 @Controller('profiles')
 @ApiBearerAuth('JWT Guard')
-@AdminRequired()
-@UseGuards(AccessTokenGuard, AdminRoleGuard)
+@UseGuards(AccessTokenGuard, RolesGuard)
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
   @Post()
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: 'Потрібені права адміністратора'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Profile })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -45,9 +45,10 @@ export class ProfilesController {
   }
 
   @Get()
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: 'Потрібені права адміністратора'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateProfile })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -56,9 +57,10 @@ export class ProfilesController {
   }
 
   @Get(':id')
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description: 'Потрібені права адміністратора'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Profile })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -69,9 +71,10 @@ export class ProfilesController {
   }
 
   @Put(':id')
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Оновити запис за ID',
-    description: 'Потрібені права адміністратора'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Profile })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -87,9 +90,10 @@ export class ProfilesController {
   }
 
   @Delete(':id')
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Потрібені права адміністратора'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Profile })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

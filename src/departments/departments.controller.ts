@@ -17,6 +17,7 @@ import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 
 import { DepartmentsService } from './departments.service';
 import { Department, PaginateDepartment } from './schemas/department.schema';
@@ -26,18 +27,16 @@ import { UpdateDepartmentDto } from './dto/update-department.dto';
 @ApiTags('Відділи')
 @Controller('departments')
 @ApiBearerAuth('JWT Guard')
-@UseGuards(AccessTokenGuard)
+@UseGuards(AccessTokenGuard, RolesGuard)
 export class DepartmentsController {
   constructor(private readonly departmentsService: DepartmentsService) {}
 
   @Post()
-  @Roles(['user', 'moderator', 'administrator'])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
     description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Department })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -48,7 +47,7 @@ export class DepartmentsController {
   }
 
   @Get()
-  @Roles(['user', 'moderator', 'administrator'])
+  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати всі записи',
     description:
@@ -63,13 +62,11 @@ export class DepartmentsController {
   }
 
   @Get(':id')
-  @Roles(['user', 'moderator', 'administrator'])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати запис за ID',
     description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Department })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -80,13 +77,11 @@ export class DepartmentsController {
   }
 
   @Put(':id')
-  @Roles(['user', 'moderator', 'administrator'])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Оновити запис за ID',
     description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Department })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -102,13 +97,11 @@ export class DepartmentsController {
   }
 
   @Delete(':id')
-  @Roles(['user', 'moderator', 'administrator'])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
     description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiOkResponse({ description: 'Успіх', type: Department })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
