@@ -98,14 +98,14 @@ export class StatisticsService {
             _id: {
               department: '$department'
             },
-            currentMonthJobCount: {
-              $sum: { $ifNull: ['$currentMonthJobCount', 0] }
+            currentJobCount: {
+              $sum: { $ifNull: ['$currentJobCount', 0] }
             }
           }
         },
         {
           $match: {
-            currentMonthJobCount: { $gt: 0 }
+            currentJobCount: { $gt: 0 }
           }
         },
         {
@@ -126,7 +126,7 @@ export class StatisticsService {
           $project: {
             _id: 0,
             department: '$departmentDetails.name',
-            currentMonthJobCount: 1
+            currentJobCount: 1
           }
         }
       ]),
@@ -142,14 +142,14 @@ export class StatisticsService {
             _id: {
               branch: '$branch'
             },
-            currentMonthJobCount: {
-              $sum: { $ifNull: ['$currentMonthJobCount', 0] }
+            currentJobCount: {
+              $sum: { $ifNull: ['$currentJobCount', 0] }
             }
           }
         },
         {
           $match: {
-            currentMonthJobCount: { $gt: 0 }
+            currentJobCount: { $gt: 0 }
           }
         },
         {
@@ -170,7 +170,7 @@ export class StatisticsService {
           $project: {
             _id: 0,
             branch: '$branchDetails.name',
-            currentMonthJobCount: 1
+            currentJobCount: 1
           }
         }
       ])
