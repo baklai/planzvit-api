@@ -35,7 +35,6 @@ export class SheetsService {
           yearOfReport
         }
       },
-      // Группировка по branch, subdivision и service
       {
         $group: {
           _id: {
@@ -48,10 +47,9 @@ export class SheetsService {
           }
         }
       },
-      // Подтягиваем данные о service
       {
         $lookup: {
-          from: 'services', // Название коллекции services
+          from: 'services',
           localField: '_id.service',
           foreignField: '_id',
           as: 'serviceDetails'
@@ -63,7 +61,6 @@ export class SheetsService {
           preserveNullAndEmptyArrays: true
         }
       },
-      // Группируем данные внутри subdivision
       {
         $group: {
           _id: {
@@ -82,7 +79,6 @@ export class SheetsService {
           currentMonthJobCount: { $sum: '$currentMonthJobCount' }
         }
       },
-      // Группируем по branch
       {
         $group: {
           _id: '$_id.branch',
@@ -96,7 +92,6 @@ export class SheetsService {
           totalJobCount: { $sum: '$currentMonthJobCount' }
         }
       },
-      // Подтягиваем данные Branch
       {
         $lookup: {
           from: 'branches',
@@ -111,13 +106,12 @@ export class SheetsService {
           preserveNullAndEmptyArrays: true
         }
       },
-      // Формируем финальный ответ
       {
         $project: {
           _id: 0,
           branchId: '$_id',
           branchName: '$branch.name',
-          totalJobCount: 1,
+          branchTotalJobCount: '$totalJobCount',
           subdivisions: {
             $map: {
               input: '$subdivisions',
