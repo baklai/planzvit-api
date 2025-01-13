@@ -121,6 +121,7 @@ export class SheetsService {
         $project: {
           _id: 0,
           branch: '$_id',
+          name: '$branch.name',
           totalJobCount: '$totalJobCount',
           totalPrice: '$totalPrice',
           subdivisions: {
@@ -128,7 +129,7 @@ export class SheetsService {
               input: '$subdivisions',
               as: 'subdivision',
               in: {
-                id: '$$subdivision.subdivisionId',
+                subdivision: '$$subdivision.subdivisionId',
                 name: {
                   $let: {
                     vars: {
@@ -154,10 +155,16 @@ export class SheetsService {
                 totalPrice: '$$subdivision.totalPrice',
                 services: {
                   $map: {
-                    input: '$$subdivision.services',
+                    input: {
+                      $filter: {
+                        input: '$$subdivision.services',
+                        as: 'service',
+                        cond: { $gt: ['$$service.currentJobCount', 0] }
+                      }
+                    },
                     as: 'service',
                     in: {
-                      id: '$$service.serviceId',
+                      service: '$$service.serviceId',
                       code: '$$service.code',
                       name: '$$service.name',
                       price: '$$service.price',
