@@ -23,6 +23,8 @@ import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { Report, PaginateReport } from './schemas/report.schema';
+import { query } from 'express';
+import { QueryReportDto } from './dto/query-report.dto';
 
 @ApiTags('Щомісячні звіти')
 @Controller('reports')
@@ -57,8 +59,8 @@ export class ReportsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateReport })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async findAll(@Query() query: PaginateQueryDto): Promise<PaginateResult<Report>> {
-    return await this.reportsService.findAll(query);
+  async findAll(@Query() queryReportDto: QueryReportDto): Promise<Report[]> {
+    return await this.reportsService.findAll(queryReportDto);
   }
 
   @Get(':id')
@@ -113,5 +115,20 @@ export class ReportsController {
   @ApiParam({ name: 'id', description: 'ID Ідентифікатор запису', type: String })
   async removeOneById(@Param('id') id: string): Promise<Report> {
     return await this.reportsService.removeOneById(id);
+  }
+
+  @Get('collecrions/department/service/branch/subdivision')
+  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @ApiOperation({
+    summary: 'Отримати всі суміжні записи',
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
+  })
+  @ApiOkResponse({ description: 'Успіх' })
+  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  async findCollecrions(): Promise<any> {
+    return await this.reportsService.findCollecrions();
   }
 }

@@ -36,7 +36,7 @@ export class Report {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Department',
     default: null,
-    autopopulate: true
+    autopopulate: false
   })
   readonly department: Department;
 
@@ -47,7 +47,7 @@ export class Report {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Service',
     default: null,
-    autopopulate: true
+    autopopulate: false
   })
   readonly service: Service;
 
@@ -58,14 +58,14 @@ export class Report {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Branch',
     default: null,
-    autopopulate: true
+    autopopulate: false
   })
   readonly branch: Branch;
 
   @ApiProperty({ description: 'Ідентифікатор підрозділу', example: '6299b5cebf44864bfcea37a5' })
   @IsString()
   @IsMongoId()
-  @Prop({ type: mongoose.Schema.Types.ObjectId, default: null, autopopulate: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, default: null, autopopulate: false })
   readonly subdivision: Subdivision;
 
   @ApiPropertyOptional({ description: 'Кількість робіт за попередній місяць', example: 50 })

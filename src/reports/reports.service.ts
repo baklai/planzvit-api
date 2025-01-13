@@ -15,6 +15,7 @@ import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { QueryReportDto } from './dto/query-report.dto';
 
 @Injectable()
 export class ReportsService {
@@ -103,19 +104,16 @@ export class ReportsService {
     }
   }
 
-  async findAll(query: PaginateQueryDto): Promise<PaginateResult<Report>> {
-    const { offset = 0, limit = 5, sort = {}, filters = {} } = query;
+  async findAll(queryReportDto: QueryReportDto): Promise<Report[]> {
+    const { monthOfReport, yearOfReport, department } = queryReportDto;
 
-    return await this.reportModel.paginate(
-      { ...filters },
-      {
-        sort,
-        offset,
-        limit,
-        lean: false,
-        allowDiskUse: true
-      }
-    );
+    return await this.reportModel.find({ monthOfReport, yearOfReport, department }, null, {
+      populate: [
+        { path: 'department', select: { name: 1, description: 1 } },
+        { path: 'service', select: { code: 1, name: 1 } },
+        { path: 'branch', select: { name: 1, ndescriptioname: 1 } }
+      ]
+    });
   }
 
   async findOneById(id: string): Promise<Report> {
@@ -161,5 +159,20 @@ export class ReportsService {
     }
 
     return deletedReport;
+  }
+
+  async findCollecrions(): Promise<any> {
+    const [deparments, services, branches, subdivisions] = await Promise.all([
+      this.departmentModel.find({}, { name: 1, description: 1 }),
+      this.serviceModel.find({}, { code: 1, name: 1 }),
+      this.branchModel.find({}, { name: 1, description: 1 }),
+      this.branchModel.aggregate([
+        { $unwind: '$subdivisions' },
+        { $replaceRoot: { newRoot: '$subdivisions' } },
+        { $project: { _id: 0, id: '$_id', name: 1, description: 1 } }
+      ])
+    ]);
+
+    return { deparments, services, branches, subdivisions };
   }
 }
