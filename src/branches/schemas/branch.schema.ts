@@ -16,9 +16,16 @@ export class Subdivision {
   @IsMongoId()
   readonly id: string;
 
-  @ApiProperty({ description: 'Назва підрозділу' })
+  @ApiProperty({ description: 'Назва підрозділу', example: 'ВП' })
   @IsString()
   readonly name: string;
+
+  @ApiProperty({
+    description: 'Повна назва підрозділу',
+    example: 'Відділ продажів'
+  })
+  @IsString()
+  readonly description: string;
 }
 
 @Schema()
