@@ -5,17 +5,16 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, PaginateModel, PaginateResult, Types } from 'mongoose';
+import { Model, PaginateModel, Types } from 'mongoose';
 
-import { Department } from 'src/departments/schemas/department.schema';
-import { Service } from 'src/services/schemas/service.schema';
 import { Branch } from 'src/branches/schemas/branch.schema';
+import { Department } from 'src/departments/schemas/department.schema';
 import { Report } from 'src/reports/schemas/report.schema';
-import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
+import { Service } from 'src/services/schemas/service.schema';
 
 import { CreateReportDto } from './dto/create-report.dto';
-import { UpdateReportDto } from './dto/update-report.dto';
 import { QueryReportDto } from './dto/query-report.dto';
+import { UpdateReportDto } from './dto/update-report.dto';
 
 @Injectable()
 export class ReportsService {
@@ -41,6 +40,20 @@ export class ReportsService {
       if (!aDepartment) {
         throw new NotFoundException('Запис не знайдено');
       }
+
+      const currReports = await this.reportModel
+        .find(
+          {
+            department: aDepartment.id,
+            monthOfReport: monthOfReport,
+            yearOfReport: yearOfReport
+          },
+          null,
+          { autopopulate: false }
+        )
+        .exec();
+
+      if (currReports?.length > 0) return false;
 
       const branches = await this.branchModel.find({}).exec();
 
