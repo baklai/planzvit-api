@@ -57,9 +57,9 @@ export class ReportsController {
       [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
       ']'
   })
-  @ApiOkResponse({ description: 'Успіх', type: PaginateReport })
+  @ApiOkResponse({ description: 'Успіх', type: [Object] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async findAll(@Query() queryReportDto: QueryReportDto): Promise<Report[]> {
+  async findAll(@Query() queryReportDto: QueryReportDto): Promise<Record<string, any>[]> {
     return await this.reportsService.findAll(queryReportDto);
   }
 

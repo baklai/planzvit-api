@@ -5,7 +5,7 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, PaginateModel, PaginateResult, Types } from 'mongoose';
+import mongoose, { Model, PaginateModel, PaginateResult, Types } from 'mongoose';
 
 import { Department } from 'src/departments/schemas/department.schema';
 import { Service } from 'src/services/schemas/service.schema';
@@ -104,16 +104,119 @@ export class ReportsService {
     }
   }
 
-  async findAll(queryReportDto: QueryReportDto): Promise<Report[]> {
+  async findAll(queryReportDto: QueryReportDto): Promise<Record<string, any>[]> {
     const { monthOfReport, yearOfReport, department } = queryReportDto;
 
-    return await this.reportModel.find({ monthOfReport, yearOfReport, department }, null, {
-      populate: [
-        { path: 'department', select: { name: 1, description: 1 } },
-        { path: 'service', select: { code: 1, name: 1 } },
-        { path: 'branch', select: { name: 1, ndescriptioname: 1 } }
-      ]
-    });
+    return await this.reportModel.aggregate([
+      {
+        $match: {
+          department: new Types.ObjectId(department),
+          monthOfReport: monthOfReport,
+          yearOfReport: yearOfReport
+        }
+      },
+      {
+        $lookup: {
+          from: 'departments',
+          localField: 'department',
+          foreignField: '_id',
+          as: 'departmentDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$departmentDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'services',
+          localField: 'service',
+          foreignField: '_id',
+          as: 'serviceDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$serviceDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'branches',
+          localField: 'branch',
+          foreignField: '_id',
+          as: 'branchDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$branchDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: {
+          path: '$subdivisionDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          id: { $toString: '$_id' },
+          _id: 0,
+          monthOfReport: 1,
+          yearOfReport: 1,
+          previousJobCount: 1,
+          changesJobCount: 1,
+          currentJobCount: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          department: {
+            name: '$departmentDetails.name',
+            description: '$departmentDetails.description',
+            phone: '$departmentDetails.phone',
+            manager: '$departmentDetails.manager',
+            id: { $toString: '$departmentDetails._id' }
+          },
+          service: {
+            code: '$serviceDetails.code',
+            name: '$serviceDetails.name',
+            price: '$serviceDetails.price',
+            id: { $toString: '$serviceDetails._id' }
+          },
+          branch: {
+            name: '$branchDetails.name',
+            description: '$branchDetails.description',
+            id: { $toString: '$branchDetails._id' }
+          },
+          subdivision: {
+            $arrayElemAt: [
+              {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: '$branchDetails.subdivisions',
+                      as: 'subdivision',
+                      cond: { $eq: ['$$subdivision._id', '$subdivision'] }
+                    }
+                  },
+                  as: 'subdivision',
+                  in: {
+                    id: { $toString: '$$subdivision._id' },
+                    name: '$$subdivision.name',
+                    description: '$$subdivision.description'
+                  }
+                }
+              },
+              0
+            ]
+          }
+        }
+      }
+    ]);
   }
 
   async findOneById(id: string): Promise<Report> {
@@ -163,7 +266,7 @@ export class ReportsService {
 
   async findCollecrions(): Promise<any> {
     const [deparments, services, branches, subdivisions] = await Promise.all([
-      this.departmentModel.find({}, { name: 1, description: 1 }),
+      this.departmentModel.find({}, { name: 1, description: 1, manager: 1 }),
       this.serviceModel.find({}, { code: 1, name: 1 }),
       this.branchModel.find({}, { name: 1, description: 1 }),
       this.branchModel.aggregate([
