@@ -1,14 +1,14 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Schema } from 'mongoose';
-import { join } from 'path';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { existsSync } from 'fs';
+import { Schema } from 'mongoose';
 import * as mongooseAutopopulate from 'mongoose-autopopulate';
-const mongooseAggregatePaginate = require('mongoose-aggregate-paginate-v2');
 import * as mongoosePaginate from 'mongoose-paginate-v2';
+import { join } from 'path';
+const mongooseAggregatePaginate = require('mongoose-aggregate-paginate-v2');
 
 import appConfig from './config/app.config';
 
@@ -16,15 +16,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { AuthModule } from './auth/auth.module';
-import { ProfilesModule } from './profiles/profiles.module';
-import { SyslogsModule } from './syslogs/syslogs.module';
-import { DepartmentsModule } from './departments/departments.module';
-import { LoggerMiddleware } from './common/middleware/logger.middleware';
-import { ServicesModule } from './services/services.module';
-import { StatisticsModule } from './statistics/statistics.module';
 import { BranchesModule } from './branches/branches.module';
+import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { DepartmentsModule } from './departments/departments.module';
+import { ProfilesModule } from './profiles/profiles.module';
 import { ReportsModule } from './reports/reports.module';
+import { ServicesModule } from './services/services.module';
 import { SheetsModule } from './sheets/sheets.module';
+import { StatisticsModule } from './statistics/statistics.module';
+import { SyslogsModule } from './syslogs/syslogs.module';
 
 function createStaticModule(directory: string, serveRoot: string, exclude = ['/api/(.*)']) {
   if (!directory || !serveRoot) return [];
