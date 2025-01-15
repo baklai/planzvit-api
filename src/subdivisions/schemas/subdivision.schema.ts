@@ -1,13 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDate, IsMongoId, IsOptional, IsString } from 'class-validator';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 import { PaginateResponseDto } from 'src/common/dto/paginate-response.dto';
-import { Subdivision } from 'src/subdivisions/schemas/subdivision.schema';
 
 @Schema()
-export class Branch {
+export class Subdivision {
   @ApiProperty({
     description: 'ID запису (унікальний)',
     example: '6299b5cebf44864bfcea36d4',
@@ -18,34 +17,20 @@ export class Branch {
   readonly id: string;
 
   @ApiProperty({
-    description: 'Назва служби (філії) (повинні бути унікальними)',
-    example: 'ФП'
+    description: 'Назва підрозділу (повинні бути унікальними)',
+    example: 'ВП'
   })
   @IsString()
   @Prop({ type: String, required: true, unique: true, uniqueCaseInsensitive: true, trim: true })
   readonly name: string;
 
   @ApiProperty({
-    description: 'Повна назва служби (філії) (повинні бути унікальними)',
-    example: 'Філія продажів'
+    description: 'Повна назва підрозділу (повинні бути унікальними)',
+    example: 'Відділ продажів'
   })
   @IsString()
   @Prop({ type: String, required: true, unique: true, uniqueCaseInsensitive: true, trim: true })
   readonly description: string;
-
-  @ApiProperty({
-    description: 'Ідентифікатор структурного підрозділу',
-    example: ['6299b5cebf44864bfcea37a5']
-  })
-  @IsString()
-  @IsMongoId()
-  @Prop({
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'Subdivision',
-    default: [],
-    autopopulate: false
-  })
-  readonly subdivisions: [Subdivision];
 
   @ApiPropertyOptional({
     description: 'Дата створення запису',
@@ -64,11 +49,11 @@ export class Branch {
   readonly updatedAt: Date;
 }
 
-export class PaginateBranch extends PaginateResponseDto {
-  @ApiProperty({ type: [Branch], description: 'Масив документів' })
-  docs: Branch[];
+export class PaginateSubdivision extends PaginateResponseDto {
+  @ApiProperty({ type: [Subdivision], description: 'Масив документів' })
+  docs: Subdivision[];
 }
 
-export type BranchDocument = HydratedDocument<Branch>;
+export type SubdivisionDocument = HydratedDocument<Subdivision>;
 
-export const BranchSchema = SchemaFactory.createForClass(Branch);
+export const SubdivisionSchema = SchemaFactory.createForClass(Subdivision);

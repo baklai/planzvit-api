@@ -12,6 +12,7 @@ import { Department } from 'src/departments/schemas/department.schema';
 import { Report } from 'src/reports/schemas/report.schema';
 import { Service } from 'src/services/schemas/service.schema';
 
+import { Subdivision } from 'src/subdivisions/schemas/subdivision.schema';
 import { CreateReportDto } from './dto/create-report.dto';
 import { QueryReportDto } from './dto/query-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
@@ -22,7 +23,8 @@ export class ReportsService {
     @InjectModel(Report.name) private readonly reportModel: PaginateModel<Report>,
     @InjectModel(Department.name) private readonly departmentModel: Model<Department>,
     @InjectModel(Service.name) private readonly serviceModel: Model<Service>,
-    @InjectModel(Branch.name) private readonly branchModel: Model<Branch>
+    @InjectModel(Branch.name) private readonly branchModel: Model<Branch>,
+    @InjectModel(Subdivision.name) private readonly subdivisionModel: Model<Subdivision>
   ) {}
 
   async create(createReportDto: CreateReportDto): Promise<Boolean> {
@@ -57,6 +59,8 @@ export class ReportsService {
 
       const branches = await this.branchModel.find({}).exec();
 
+      const subdivisions = await this.subdivisionModel.find({}).exec();
+
       const prevReports = await this.reportModel
         .find(
           {
@@ -73,7 +77,7 @@ export class ReportsService {
 
       for (const service of aDepartment.services) {
         for (const branch of branches) {
-          for (const subdivision of branch.subdivisions) {
+          for (const subdivision of subdivisions) {
             reports.push({
               monthOfReport,
               yearOfReport,
@@ -120,116 +124,17 @@ export class ReportsService {
   async findAll(queryReportDto: QueryReportDto): Promise<Record<string, any>[]> {
     const { monthOfReport, yearOfReport, department } = queryReportDto;
 
-    return await this.reportModel.aggregate([
-      {
-        $match: {
-          department: new Types.ObjectId(department),
-          monthOfReport: monthOfReport,
-          yearOfReport: yearOfReport
-        }
-      },
-      {
-        $lookup: {
-          from: 'departments',
-          localField: 'department',
-          foreignField: '_id',
-          as: 'departmentDetails'
-        }
-      },
-      {
-        $unwind: {
-          path: '$departmentDetails',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $lookup: {
-          from: 'services',
-          localField: 'service',
-          foreignField: '_id',
-          as: 'serviceDetails'
-        }
-      },
-      {
-        $unwind: {
-          path: '$serviceDetails',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $lookup: {
-          from: 'branches',
-          localField: 'branch',
-          foreignField: '_id',
-          as: 'branchDetails'
-        }
-      },
-      {
-        $unwind: {
-          path: '$branchDetails',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $unwind: {
-          path: '$subdivisionDetails',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $project: {
-          id: { $toString: '$_id' },
-          _id: 0,
-          monthOfReport: 1,
-          yearOfReport: 1,
-          previousJobCount: 1,
-          changesJobCount: 1,
-          currentJobCount: 1,
-          createdAt: 1,
-          updatedAt: 1,
-          department: {
-            name: '$departmentDetails.name',
-            description: '$departmentDetails.description',
-            phone: '$departmentDetails.phone',
-            manager: '$departmentDetails.manager',
-            id: { $toString: '$departmentDetails._id' }
-          },
-          service: {
-            code: '$serviceDetails.code',
-            name: '$serviceDetails.name',
-            price: '$serviceDetails.price',
-            id: { $toString: '$serviceDetails._id' }
-          },
-          branch: {
-            name: '$branchDetails.name',
-            description: '$branchDetails.description',
-            id: { $toString: '$branchDetails._id' }
-          },
-          subdivision: {
-            $arrayElemAt: [
-              {
-                $map: {
-                  input: {
-                    $filter: {
-                      input: '$branchDetails.subdivisions',
-                      as: 'subdivision',
-                      cond: { $eq: ['$$subdivision._id', '$subdivision'] }
-                    }
-                  },
-                  as: 'subdivision',
-                  in: {
-                    id: { $toString: '$$subdivision._id' },
-                    name: '$$subdivision.name',
-                    description: '$$subdivision.description'
-                  }
-                }
-              },
-              0
-            ]
-          }
-        }
-      }
-    ]);
+    if (!Types.ObjectId.isValid(department)) {
+      throw new BadRequestException('Недійсний ідентифікатор запису');
+    }
+
+    return await this.reportModel
+      .find({ department, monthOfReport, yearOfReport })
+      .populate('department', { name: 1, description: 1, phone: 1, manager: 1 })
+      .populate('service', { code: 1, name: 1, price: 1 })
+      .populate('branch', { name: 1, description: 1 })
+      .populate('subdivision', { name: 1, description: 1 })
+      .exec();
   }
 
   async findOneById(id: string): Promise<Report> {
@@ -282,11 +187,7 @@ export class ReportsService {
       this.departmentModel.find({}, { name: 1, description: 1, manager: 1 }),
       this.serviceModel.find({}, { code: 1, name: 1 }),
       this.branchModel.find({}, { name: 1, description: 1 }),
-      this.branchModel.aggregate([
-        { $unwind: '$subdivisions' },
-        { $replaceRoot: { newRoot: '$subdivisions' } },
-        { $project: { _id: 0, id: '$_id', name: 1, description: 1 } }
-      ])
+      this.subdivisionModel.find({}, { name: 1, description: 1 })
     ]);
 
     return { deparments, services, branches, subdivisions };

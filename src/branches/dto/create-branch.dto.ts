@@ -1,16 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsArray, IsString, ValidateNested } from 'class-validator';
-
-class Subdivision {
-  @ApiProperty({ description: 'Назва підрозділу' })
-  @IsString()
-  readonly name: string;
-
-  @ApiProperty({ description: 'Повна назва підрозділу' })
-  @IsString()
-  readonly description: string;
-}
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsArray, IsMongoId, IsOptional, IsString } from 'class-validator';
 
 export class CreateBranchDto {
   @ApiProperty({
@@ -27,12 +16,12 @@ export class CreateBranchDto {
   @IsString()
   readonly description: string;
 
-  @ApiProperty({
-    description: 'Перелік підрозділів',
-    type: [Subdivision]
+  @ApiPropertyOptional({
+    description: 'Ідентифікатор структурного підрозділу',
+    example: ['6299b5cebf44864bfcea37a5']
   })
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Subdivision)
-  readonly subdivisions: Subdivision[];
+  @IsOptional()
+  @IsMongoId({ each: true })
+  readonly subdivisions: string[];
 }

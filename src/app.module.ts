@@ -25,6 +25,7 @@ import { ServicesModule } from './services/services.module';
 import { SheetsModule } from './sheets/sheets.module';
 import { StatisticsModule } from './statistics/statistics.module';
 import { SyslogsModule } from './syslogs/syslogs.module';
+import { SubdivisionsModule } from './subdivisions/subdivisions.module';
 
 function createStaticModule(directory: string, serveRoot: string, exclude = ['/api/(.*)']) {
   if (!directory || !serveRoot) return [];
@@ -97,6 +98,7 @@ const AppStaticModule = createStaticModule('app', '/', ['/api/(.*)']);
     DepartmentsModule,
     ServicesModule,
     BranchesModule,
+    SubdivisionsModule,
     ReportsModule,
     SheetsModule,
     StatisticsModule,

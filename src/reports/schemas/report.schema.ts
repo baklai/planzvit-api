@@ -3,10 +3,11 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDate, IsMongoId, IsNumber, IsOptional, IsString } from 'class-validator';
 import mongoose, { HydratedDocument } from 'mongoose';
 
-import { Branch, Subdivision } from 'src/branches/schemas/branch.schema';
+import { Branch } from 'src/branches/schemas/branch.schema';
 import { PaginateResponseDto } from 'src/common/dto/paginate-response.dto';
 import { Department } from 'src/departments/schemas/department.schema';
 import { Service } from 'src/services/schemas/service.schema';
+import { Subdivision } from 'src/subdivisions/schemas/subdivision.schema';
 
 @Schema()
 export class Report {
@@ -65,7 +66,12 @@ export class Report {
   @ApiProperty({ description: 'Ідентифікатор підрозділу', example: '6299b5cebf44864bfcea37a5' })
   @IsString()
   @IsMongoId()
-  @Prop({ type: mongoose.Schema.Types.ObjectId, default: null, autopopulate: false })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Subdivision',
+    default: null,
+    autopopulate: false
+  })
   readonly subdivision: Subdivision;
 
   @ApiPropertyOptional({ description: 'Кількість робіт за попередній місяць', example: 50 })
