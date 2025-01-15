@@ -1,5 +1,4 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { PaginateResult } from 'mongoose';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -16,15 +15,13 @@ import {
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 
-import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
-import { UpdateReportDto } from './dto/update-report.dto';
-import { Report, PaginateReport } from './schemas/report.schema';
-import { query } from 'express';
 import { QueryReportDto } from './dto/query-report.dto';
+import { UpdateReportDto } from './dto/update-report.dto';
+import { ReportsService } from './reports.service';
+import { Report } from './schemas/report.schema';
 
 @ApiTags('Щомісячні звіти')
 @Controller('reports')
@@ -117,7 +114,7 @@ export class ReportsController {
     return await this.reportsService.removeOneById(id);
   }
 
-  @Get('collecrions/department/service/branch/subdivision')
+  @Get('collections/data')
   @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати всі суміжні записи',
