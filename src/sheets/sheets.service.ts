@@ -48,28 +48,77 @@ export class SheetsService {
   async getReportByIds(sheetDto: SheetDto): Promise<Record<string, any>[]> {
     const { monthOfReport, yearOfReport } = sheetDto;
 
-    return null;
+    const departments = await this.departmentModel.find({}, { id: 1 }).exec();
 
-    // if (!Types.ObjectId.isValid(department)) {
-    //   throw new BadRequestException('Недійсний ідентифікатор запису');
-    // }
-
-    // return await this.reportModel
-    //   .find({
-    //     department,
-    //     monthOfReport,
-    //     yearOfReport,
-    //     $or: [
-    //       { previousJobCount: { $ne: 0 } },
-    //       { changesJobCount: { $ne: 0 } },
-    //       { currentJobCount: { $ne: 0 } }
-    //     ]
-    //   })
-    //   .populate('department', { name: 1, description: 1, phone: 1, manager: 1 })
-    //   .populate('service', { code: 1, name: 1, price: 1 })
-    //   .populate('branch', { name: 1, description: 1 })
-    //   .populate('subdivision', { name: 1, description: 1 })
-    //   .exec();
+    return await this.reportModel.aggregate([
+      {
+        $match: {
+          department: { $in: departments?.map(({ id }) => new Types.ObjectId(id)) || [] },
+          monthOfReport,
+          yearOfReport,
+          $or: [
+            { previousJobCount: { $ne: 0 } },
+            { changesJobCount: { $ne: 0 } },
+            { currentJobCount: { $ne: 0 } }
+          ]
+        }
+      },
+      {
+        $lookup: {
+          from: 'departments',
+          localField: 'department',
+          foreignField: '_id',
+          as: 'department'
+        }
+      },
+      { $unwind: '$department' },
+      {
+        $lookup: {
+          from: 'services',
+          localField: 'service',
+          foreignField: '_id',
+          as: 'service'
+        }
+      },
+      { $unwind: '$service' },
+      {
+        $lookup: {
+          from: 'branches',
+          localField: 'branch',
+          foreignField: '_id',
+          as: 'branch'
+        }
+      },
+      { $unwind: '$branch' },
+      {
+        $lookup: {
+          from: 'subdivisions',
+          localField: 'subdivision',
+          foreignField: '_id',
+          as: 'subdivision'
+        }
+      },
+      { $unwind: '$subdivision' },
+      {
+        $group: {
+          _id: '$department._id',
+          department: { $first: '$department' },
+          records: { $push: '$$ROOT' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          department: {
+            name: '$department.name',
+            description: '$department.description',
+            phone: '$department.phone',
+            manager: '$department.manager'
+          },
+          records: 1
+        }
+      }
+    ]);
   }
 
   async getBranchById(id: string, sheetDto: SheetDto): Promise<any> {
