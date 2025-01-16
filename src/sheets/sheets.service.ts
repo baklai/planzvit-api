@@ -20,6 +20,58 @@ export class SheetsService {
     @InjectModel(Branch.name) private readonly branchModel: Model<Branch>
   ) {}
 
+  async getReportById(department: string, sheetDto: SheetDto): Promise<Record<string, any>[]> {
+    const { monthOfReport, yearOfReport } = sheetDto;
+
+    if (!Types.ObjectId.isValid(department)) {
+      throw new BadRequestException('Недійсний ідентифікатор запису');
+    }
+
+    return await this.reportModel
+      .find({
+        department,
+        monthOfReport,
+        yearOfReport,
+        $or: [
+          { previousJobCount: { $ne: 0 } },
+          { changesJobCount: { $ne: 0 } },
+          { currentJobCount: { $ne: 0 } }
+        ]
+      })
+      .populate('department', { name: 1, description: 1, phone: 1, manager: 1 })
+      .populate('service', { code: 1, name: 1, price: 1 })
+      .populate('branch', { name: 1, description: 1 })
+      .populate('subdivision', { name: 1, description: 1 })
+      .exec();
+  }
+
+  async getReportByIds(sheetDto: SheetDto): Promise<Record<string, any>[]> {
+    const { monthOfReport, yearOfReport } = sheetDto;
+
+    return null;
+
+    // if (!Types.ObjectId.isValid(department)) {
+    //   throw new BadRequestException('Недійсний ідентифікатор запису');
+    // }
+
+    // return await this.reportModel
+    //   .find({
+    //     department,
+    //     monthOfReport,
+    //     yearOfReport,
+    //     $or: [
+    //       { previousJobCount: { $ne: 0 } },
+    //       { changesJobCount: { $ne: 0 } },
+    //       { currentJobCount: { $ne: 0 } }
+    //     ]
+    //   })
+    //   .populate('department', { name: 1, description: 1, phone: 1, manager: 1 })
+    //   .populate('service', { code: 1, name: 1, price: 1 })
+    //   .populate('branch', { name: 1, description: 1 })
+    //   .populate('subdivision', { name: 1, description: 1 })
+    //   .exec();
+  }
+
   async getBranchById(id: string, sheetDto: SheetDto): Promise<any> {
     const { monthOfReport, yearOfReport } = sheetDto;
 

@@ -23,6 +23,35 @@ import { SheetsService } from './sheets.service';
 export class SheetsController {
   constructor(private readonly sheetsService: SheetsService) {}
 
+  @Get('reports')
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @ApiOperation({
+    summary: 'Отримати всі записи',
+    description:
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+  })
+  @ApiOkResponse({ description: 'Успіх', type: [Object] })
+  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  async getReportByIds(@Query() sheetDto: SheetDto): Promise<Record<string, any>[]> {
+    return await this.sheetsService.getReportByIds(sheetDto);
+  }
+
+  @Get('reports/:id')
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @ApiOperation({
+    summary: 'Отримати всі записи',
+    description:
+      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+  })
+  @ApiOkResponse({ description: 'Успіх', type: [Object] })
+  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  async getReportById(
+    @Param('id') id: string,
+    @Query() sheetDto: SheetDto
+  ): Promise<Record<string, any>[]> {
+    return await this.sheetsService.getReportById(id, sheetDto);
+  }
+
   @Get('branches')
   @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
