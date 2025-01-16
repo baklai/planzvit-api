@@ -519,14 +519,17 @@ export class SheetsService {
         }
       },
       {
-        $unwind: {
-          path: '$branch.subdivisions',
-          preserveNullAndEmptyArrays: true
+        $lookup: {
+          from: 'subdivisions',
+          localField: '_id.subdivision',
+          foreignField: '_id',
+          as: 'subdivision'
         }
       },
       {
-        $match: {
-          'branch.subdivisions._id': { $eq: new Types.ObjectId(id) }
+        $unwind: {
+          path: '$subdivision',
+          preserveNullAndEmptyArrays: true
         }
       },
       {
@@ -556,9 +559,9 @@ export class SheetsService {
             description: '$branch.description'
           },
           subdivision: {
-            id: '$branch.subdivisions._id',
-            name: '$branch.subdivisions.name',
-            description: '$branch.subdivisions.description'
+            id: '$subdivision._id',
+            name: '$subdivision.name',
+            description: '$subdivision.description'
           }
         }
       },
@@ -575,11 +578,7 @@ export class SheetsService {
       {
         $project: {
           _id: 0,
-          branch: {
-            id: '$branch._id',
-            name: '$branch.name',
-            description: '$branch.description'
-          },
+          branch: 1,
           subdivision: 1,
           services: 1,
           totalPrice: 1,
