@@ -27,62 +27,37 @@ export class ReportsService {
     @InjectModel(Subdivision.name) private readonly subdivisionModel: Model<Subdivision>
   ) {}
 
-  async create(createReportDto: CreateReportDto): Promise<Boolean> {
+  async createOneById(departmentId: string, createReportDto: CreateReportDto): Promise<Boolean> {
     try {
-      const { department, monthOfReport, yearOfReport } = createReportDto;
+      const { monthOfReport, yearOfReport } = createReportDto;
 
-      if (!Types.ObjectId.isValid(department)) {
+      if (!Types.ObjectId.isValid(departmentId)) {
         throw new BadRequestException('Недійсний ідентифікатор запису');
       }
 
-      const aDepartment = await this.departmentModel
-        .findById(department)
-        .populate('services')
+      const department = await this.departmentModel
+        .findById(departmentId)
+        .populate('services', { code: 1, name: 1, price: 1 })
         .exec();
 
-      if (!aDepartment) {
+      if (!department) {
         throw new NotFoundException('Запис не знайдено');
       }
 
-      const currReports = await this.reportModel
-        .find(
-          {
-            department: aDepartment.id,
-            monthOfReport: monthOfReport,
-            yearOfReport: yearOfReport
-          },
-          null,
-          { autopopulate: false }
-        )
+      const branches = await this.branchModel
+        .find({})
+        .populate('subdivisions', { name: 1, description: 1 })
         .exec();
 
-      if (currReports?.length > 0) return false;
+      const createdReports = [];
 
-      const branches = await this.branchModel.find({}).exec();
-
-      const subdivisions = await this.subdivisionModel.find({}).exec();
-
-      const prevReports = await this.reportModel
-        .find(
-          {
-            department: aDepartment.id,
-            monthOfReport: monthOfReport - 1,
-            yearOfReport: yearOfReport
-          },
-          null,
-          { autopopulate: false }
-        )
-        .exec();
-
-      const reports = [];
-
-      for (const service of aDepartment.services) {
+      for (const service of department.services) {
         for (const branch of branches) {
-          for (const subdivision of subdivisions) {
-            reports.push({
+          for (const subdivision of branch.subdivisions) {
+            createdReports.push({
               monthOfReport,
               yearOfReport,
-              department: aDepartment.id,
+              department: department.id,
               service: service.id,
               branch: branch.id,
               subdivision: subdivision.id,
@@ -94,24 +69,76 @@ export class ReportsService {
         }
       }
 
-      if (prevReports.length) {
-        reports.forEach(curReport => {
-          const report = prevReports.find(
-            prevReport =>
-              prevReport?.department.toString() === curReport?.department &&
-              prevReport?.service.toString() === curReport?.service &&
-              prevReport?.branch.toString() === curReport?.branch &&
-              prevReport?.subdivision.toString() === curReport?.subdivision.toString()
+      const currentReports = await this.reportModel
+        .find(
+          {
+            department: department.id,
+            monthOfReport: monthOfReport,
+            yearOfReport: yearOfReport
+          },
+          null,
+          { autopopulate: false }
+        )
+        .exec();
+
+      if (currentReports.length) {
+        createdReports.forEach(createdReport => {
+          const currentReport = currentReports.find(
+            ({ monthOfReport, yearOfReport, department, service, branch, subdivision }) =>
+              monthOfReport === createdReport.monthOfReport &&
+              yearOfReport === createdReport.yearOfReport &&
+              department.toString() === createdReport?.department &&
+              service.toString() === createdReport?.service &&
+              branch.toString() === createdReport?.branch &&
+              subdivision.toString() === createdReport?.subdivision
           );
 
-          if (report) {
-            curReport.previousJobCount = report?.currentJobCount || 0;
-            curReport.currentJobCount = report?.currentJobCount || 0;
+          if (currentReport) {
+            createdReport.previousJobCount = currentReport.previousJobCount;
+            createdReport.changesJobCount = currentReport.changesJobCount;
+            createdReport.currentJobCount = currentReport.currentJobCount;
           }
         });
-      }
 
-      await this.reportModel.insertMany(reports);
+        await this.reportModel.deleteMany({
+          department: department.id,
+          monthOfReport: monthOfReport,
+          yearOfReport: yearOfReport
+        });
+
+        await this.reportModel.insertMany(createdReports);
+      } else {
+        const previousReports = await this.reportModel
+          .find(
+            {
+              department: department.id,
+              monthOfReport: monthOfReport - 1 === 0 ? 12 : monthOfReport - 1,
+              yearOfReport: monthOfReport - 1 === 0 ? yearOfReport - 1 : yearOfReport
+            },
+            null,
+            { autopopulate: false }
+          )
+          .exec();
+
+        if (previousReports.length) {
+          createdReports.forEach(createdReport => {
+            const previousReport = previousReports.find(
+              ({ department, service, branch, subdivision }) =>
+                department.toString() === createdReport?.department &&
+                service.toString() === createdReport?.service &&
+                branch.toString() === createdReport?.branch &&
+                subdivision.toString() === createdReport?.subdivision
+            );
+
+            if (previousReport) {
+              createdReport.previousJobCount = previousReport?.currentJobCount || 0;
+              createdReport.currentJobCount = previousReport?.currentJobCount || 0;
+            }
+          });
+        }
+
+        await this.reportModel.insertMany(createdReports);
+      }
 
       return true;
     } catch (error) {
@@ -122,8 +149,8 @@ export class ReportsService {
     }
   }
 
-  async findAll(queryReportDto: QueryReportDto): Promise<Record<string, any>[]> {
-    const { monthOfReport, yearOfReport, department } = queryReportDto;
+  async findOneById(department: string, queryReportDto: QueryReportDto): Promise<Report[]> {
+    const { monthOfReport, yearOfReport } = queryReportDto;
 
     if (!Types.ObjectId.isValid(department)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');
@@ -136,17 +163,6 @@ export class ReportsService {
       .populate('branch', { name: 1, description: 1 })
       .populate('subdivision', { name: 1, description: 1 })
       .exec();
-  }
-
-  async findOneById(id: string): Promise<Report> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Недійсний ідентифікатор запису');
-    }
-    const report = await this.reportModel.findById(id).exec();
-    if (!report) {
-      throw new NotFoundException('Запис не знайдено');
-    }
-    return report;
   }
 
   async updateOneById(id: string, updateReportDto: UpdateReportDto): Promise<Report> {
@@ -169,12 +185,19 @@ export class ReportsService {
     }
   }
 
-  async removeOneById(id: string): Promise<Report> {
-    if (!Types.ObjectId.isValid(id)) {
+  async removeOneById(
+    department: string,
+    queryReportDto: QueryReportDto
+  ): Promise<Record<string, any>> {
+    const { monthOfReport, yearOfReport } = queryReportDto;
+
+    if (!Types.ObjectId.isValid(department)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');
     }
 
-    const deletedReport = await this.reportModel.findByIdAndDelete(id).exec();
+    const deletedReport = await this.reportModel
+      .deleteMany({ department, monthOfReport, yearOfReport })
+      .exec();
 
     if (!deletedReport) {
       throw new NotFoundException('Запис не знайдено');

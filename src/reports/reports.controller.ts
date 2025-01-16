@@ -30,37 +30,24 @@ import { Report } from './schemas/report.schema';
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
-  @Post()
-  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Post(':department')
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description:
-      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Boolean })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   @ApiConflictResponse({ description: 'Конфлікт даних' })
   @ApiBody({ description: "Об'єкт тіла запиту", type: Object })
-  async create(@Body() createReportDto: CreateReportDto): Promise<Boolean> {
-    return await this.reportsService.create(createReportDto);
+  async createOneById(
+    @Param('department') department: string,
+    @Body() createReportDto: CreateReportDto
+  ): Promise<Boolean> {
+    return await this.reportsService.createOneById(department, createReportDto);
   }
 
-  @Get()
-  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
-  @ApiOperation({
-    summary: 'Отримати всі записи',
-    description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
-  })
-  @ApiOkResponse({ description: 'Успіх', type: [Object] })
-  @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async findAll(@Query() queryReportDto: QueryReportDto): Promise<Record<string, any>[]> {
-    return await this.reportsService.findAll(queryReportDto);
-  }
-
-  @Get(':id')
+  @Get(':department')
   @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати запис за ID',
@@ -69,12 +56,15 @@ export class ReportsController {
       [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
       ']'
   })
-  @ApiOkResponse({ description: 'Успіх', type: Report })
+  @ApiOkResponse({ description: 'Успіх', type: [Report] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   @ApiNotFoundResponse({ description: 'Не знайдено' })
-  @ApiParam({ name: 'id', description: 'ID Ідентифікатор запису', type: String })
-  async findOneById(@Param('id') id: string): Promise<Report> {
-    return await this.reportsService.findOneById(id);
+  @ApiParam({ name: 'id', description: 'ID Ідентифікатор відділу', type: String })
+  async findOneById(
+    @Param('department') department: string,
+    @Query() queryReportDto: QueryReportDto
+  ): Promise<Report[]> {
+    return await this.reportsService.findOneById(department, queryReportDto);
   }
 
   @Put(':id')
@@ -99,19 +89,21 @@ export class ReportsController {
     return await this.reportsService.updateOneById(id, updateReportDto);
   }
 
-  @Delete(':id')
-  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Delete(':department')
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description:
-      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
   })
-  @ApiOkResponse({ description: 'Успіх', type: Report })
+  @ApiOkResponse({ description: 'Успіх', type: Object })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   @ApiNotFoundResponse({ description: 'Не знайдено' })
-  @ApiParam({ name: 'id', description: 'ID Ідентифікатор запису', type: String })
-  async removeOneById(@Param('id') id: string): Promise<Report> {
-    return await this.reportsService.removeOneById(id);
+  @ApiParam({ name: 'department', description: 'ID Ідентифікатор відділу', type: String })
+  async removeOneById(
+    @Param('department') department: string,
+    @Query() queryReportDto: QueryReportDto
+  ): Promise<Record<string, any>> {
+    return await this.reportsService.removeOneById(department, queryReportDto);
   }
 
   @Get('collections/data')
