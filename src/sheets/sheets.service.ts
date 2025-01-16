@@ -190,11 +190,25 @@ export class SheetsService {
         }
       },
       {
+        $lookup: {
+          from: 'subdivisions',
+          localField: '_id.subdivision',
+          foreignField: '_id',
+          as: 'subdivisionDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$subdivisionDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
         $group: {
           _id: '$_id.branch',
           subdivisions: {
             $push: {
-              subdivisionId: '$_id.subdivision',
+              subdivision: '$subdivisionDetails',
               currentJobCount: '$currentJobCount',
               totalPrice: '$totalPrice',
               services: '$services'
@@ -209,20 +223,21 @@ export class SheetsService {
           from: 'branches',
           localField: '_id',
           foreignField: '_id',
-          as: 'branch'
+          as: 'branchDetails'
         }
       },
       {
         $unwind: {
-          path: '$branch',
+          path: '$branchDetails',
           preserveNullAndEmptyArrays: true
         }
       },
       {
         $project: {
           _id: 0,
-          branch: '$_id',
-          name: '$branch.name',
+          id: '$branchDetails._id',
+          name: '$branchDetails.name',
+          description: '$branchDetails.description',
           totalJobCount: '$totalJobCount',
           totalPrice: '$totalPrice',
           subdivisions: {
@@ -230,28 +245,9 @@ export class SheetsService {
               input: '$subdivisions',
               as: 'subdivision',
               in: {
-                subdivision: '$$subdivision.subdivisionId',
-                name: {
-                  $let: {
-                    vars: {
-                      matchedSubdivision: {
-                        $arrayElemAt: [
-                          {
-                            $filter: {
-                              input: '$branch.subdivisions',
-                              as: 'sub',
-                              cond: {
-                                $eq: ['$$sub._id', '$$subdivision.subdivisionId']
-                              }
-                            }
-                          },
-                          0
-                        ]
-                      }
-                    },
-                    in: '$$matchedSubdivision.name'
-                  }
-                },
+                id: '$$subdivision.subdivision._id',
+                name: '$$subdivision.subdivision.name',
+                description: '$$subdivision.subdivision.description',
                 totalJobCount: '$$subdivision.currentJobCount',
                 totalPrice: '$$subdivision.totalPrice',
                 services: {
@@ -265,7 +261,7 @@ export class SheetsService {
                     },
                     as: 'service',
                     in: {
-                      service: '$$service.serviceId',
+                      id: '$$service.serviceId',
                       code: '$$service.code',
                       name: '$$service.name',
                       price: '$$service.price',
