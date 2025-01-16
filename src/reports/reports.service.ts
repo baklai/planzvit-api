@@ -34,6 +34,7 @@ export class ReportsService {
       if (!Types.ObjectId.isValid(department)) {
         throw new BadRequestException('Недійсний ідентифікатор запису');
       }
+
       const aDepartment = await this.departmentModel
         .findById(department)
         .populate('services')
