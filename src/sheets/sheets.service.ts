@@ -499,6 +499,20 @@ export class SheetsService {
         }
       },
       {
+        $lookup: {
+          from: 'departments',
+          localField: 'department',
+          foreignField: '_id',
+          as: 'departmentDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$departmentDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
         $match: {
           currentJobCount: { $gt: 0 }
         }
@@ -523,7 +537,13 @@ export class SheetsService {
               name: '$serviceDetails.name',
               price: '$serviceDetails.price',
               totalJobCount: '$currentJobCount',
-              totalPrice: { $multiply: ['$currentJobCount', '$serviceDetails.price'] }
+              totalPrice: { $multiply: ['$currentJobCount', '$serviceDetails.price'] },
+              department: {
+                id: '$departmentDetails._id',
+                name: '$departmentDetails.name',
+                phone: '$departmentDetails.phone',
+                manager: '$departmentDetails.manager'
+              }
             }
           },
           totalJobCount: { $sum: '$currentJobCount' },
@@ -547,14 +567,125 @@ export class SheetsService {
     ]);
   }
 
-  async getSubdivisionByIds(id: string, sheetDto: SheetDto): Promise<any> {
+  async getSubdivisionByIds(sheetDto: SheetDto): Promise<any> {
     const { monthOfReport, yearOfReport } = sheetDto;
 
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Недійсний ідентифікатор запису');
-    }
-
-    return [];
+    return await this.reportModel.aggregate([
+      {
+        $match: {
+          monthOfReport,
+          yearOfReport
+        }
+      },
+      {
+        $lookup: {
+          from: 'subdivisions',
+          localField: 'subdivision',
+          foreignField: '_id',
+          as: 'subdivisionDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$subdivisionDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'branches',
+          localField: 'branch',
+          foreignField: '_id',
+          as: 'branchDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$branchDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'services',
+          localField: 'service',
+          foreignField: '_id',
+          as: 'serviceDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$serviceDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'departments',
+          localField: 'department',
+          foreignField: '_id',
+          as: 'departmentDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$departmentDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $match: {
+          currentJobCount: { $gt: 0 }
+        }
+      },
+      {
+        $group: {
+          _id: '$subdivision',
+          id: { $first: '$subdivisionDetails._id' },
+          name: { $first: '$subdivisionDetails.name' },
+          description: { $first: '$subdivisionDetails.description' },
+          branch: {
+            $first: {
+              id: '$branchDetails._id',
+              name: '$branchDetails.name',
+              description: '$branchDetails.description'
+            }
+          },
+          services: {
+            $push: {
+              id: '$serviceDetails._id',
+              code: '$serviceDetails.code',
+              name: '$serviceDetails.name',
+              price: '$serviceDetails.price',
+              totalJobCount: '$currentJobCount',
+              totalPrice: { $multiply: ['$currentJobCount', '$serviceDetails.price'] },
+              department: {
+                id: '$departmentDetails._id',
+                name: '$departmentDetails.name',
+                phone: '$departmentDetails.phone',
+                manager: '$departmentDetails.manager'
+              }
+            }
+          },
+          totalJobCount: { $sum: '$currentJobCount' },
+          totalPrice: {
+            $sum: { $multiply: ['$currentJobCount', '$serviceDetails.price'] }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          id: 1,
+          name: 1,
+          description: 1,
+          branch: 1,
+          services: 1,
+          totalJobCount: 1,
+          totalPrice: 1
+        }
+      }
+    ]);
 
     // return await this.reportModel.aggregate([
     //   {

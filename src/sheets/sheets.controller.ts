@@ -87,8 +87,8 @@ export class SheetsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: Sheet })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getSubdivisionByIds(@Param('id') id: string, @Query() sheetDto: SheetDto): Promise<Sheet> {
-    return await this.sheetsService.getSubdivisionById(id, sheetDto);
+  async getSubdivisionByIds(@Query() sheetDto: SheetDto): Promise<Sheet> {
+    return await this.sheetsService.getSubdivisionByIds(sheetDto);
   }
 
   @Get('subdivisions/:id')
