@@ -192,7 +192,7 @@ export class SheetsService {
           },
           services: {
             $push: {
-              serviceId: '$_id.service',
+              id: '$_id.service',
               totalJobCount: '$currentJobCount',
               totalPrice: '$currentPrice',
               code: '$serviceDetails.code',
@@ -368,7 +368,7 @@ export class SheetsService {
           },
           services: {
             $push: {
-              serviceId: '$_id.service',
+              id: '$_id.service',
               totalJobCount: '$currentJobCount',
               totalPrice: '$currentPrice',
               code: '$serviceDetails.code',
