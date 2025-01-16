@@ -145,7 +145,8 @@ export class SheetsService {
           },
           currentJobCount: {
             $sum: { $ifNull: ['$currentJobCount', 0] }
-          }
+          },
+          department: { $first: '$department' }
         }
       },
       {
@@ -170,6 +171,20 @@ export class SheetsService {
         }
       },
       {
+        $lookup: {
+          from: 'departments',
+          localField: 'department',
+          foreignField: '_id',
+          as: 'departmentDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$departmentDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
         $group: {
           _id: {
             branch: '$_id.branch',
@@ -178,11 +193,17 @@ export class SheetsService {
           services: {
             $push: {
               serviceId: '$_id.service',
-              currentJobCount: '$currentJobCount',
-              currentPrice: '$currentPrice',
+              totalJobCount: '$currentJobCount',
+              totalPrice: '$currentPrice',
               code: '$serviceDetails.code',
               name: '$serviceDetails.name',
-              price: '$serviceDetails.price'
+              price: '$serviceDetails.price',
+              department: {
+                id: '$departmentDetails._id',
+                name: '$departmentDetails.name',
+                phone: '$departmentDetails.phone',
+                manager: '$departmentDetails.manager'
+              }
             }
           },
           currentJobCount: { $sum: '$currentJobCount' },
@@ -251,26 +272,29 @@ export class SheetsService {
                 totalJobCount: '$$subdivision.currentJobCount',
                 totalPrice: '$$subdivision.totalPrice',
                 services: {
-                  $map: {
-                    input: {
-                      $filter: {
-                        input: '$$subdivision.services',
-                        as: 'service',
-                        cond: { $gt: ['$$service.currentJobCount', 0] }
-                      }
-                    },
+                  $filter: {
+                    input: '$$subdivision.services',
                     as: 'service',
-                    in: {
-                      id: '$$service.serviceId',
-                      code: '$$service.code',
-                      name: '$$service.name',
-                      price: '$$service.price',
-                      totalJobCount: '$$service.currentJobCount',
-                      totalPrice: '$$service.currentPrice'
-                    }
+                    cond: { $gt: ['$$service.totalJobCount', 0] }
                   }
                 }
               }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          id: 1,
+          name: 1,
+          description: 1,
+          totalJobCount: 1,
+          totalPrice: 1,
+          subdivisions: {
+            $filter: {
+              input: '$subdivisions',
+              as: 'subdivision',
+              cond: { $gt: [{ $size: '$$subdivision.services' }, 0] }
             }
           }
         }
@@ -278,167 +302,180 @@ export class SheetsService {
     ]);
   }
 
-  async getBranchByIds(id: string, sheetDto: SheetDto): Promise<any> {
+  async getBranchByIds(sheetDto: SheetDto): Promise<any> {
     const { monthOfReport, yearOfReport } = sheetDto;
 
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Недійсний ідентифікатор запису');
-    }
-
-    return [];
-
-    // return await this.reportModel.aggregate([
-    //   {
-    //     $match: {
-    //       branch: new Types.ObjectId(id),
-    //       monthOfReport,
-    //       yearOfReport
-    //     }
-    //   },
-    //   {
-    //     $group: {
-    //       _id: {
-    //         branch: '$branch',
-    //         subdivision: '$subdivision',
-    //         service: '$service'
-    //       },
-    //       currentJobCount: {
-    //         $sum: { $ifNull: ['$currentJobCount', 0] }
-    //       }
-    //     }
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: 'services',
-    //       localField: '_id.service',
-    //       foreignField: '_id',
-    //       as: 'serviceDetails'
-    //     }
-    //   },
-    //   {
-    //     $unwind: {
-    //       path: '$serviceDetails',
-    //       preserveNullAndEmptyArrays: true
-    //     }
-    //   },
-    //   {
-    //     $addFields: {
-    //       currentPrice: {
-    //         $multiply: ['$serviceDetails.price', '$currentJobCount']
-    //       }
-    //     }
-    //   },
-    //   {
-    //     $group: {
-    //       _id: {
-    //         branch: '$_id.branch',
-    //         subdivision: '$_id.subdivision'
-    //       },
-    //       services: {
-    //         $push: {
-    //           serviceId: '$_id.service',
-    //           currentJobCount: '$currentJobCount',
-    //           currentPrice: '$currentPrice',
-    //           code: '$serviceDetails.code',
-    //           name: '$serviceDetails.name',
-    //           price: '$serviceDetails.price'
-    //         }
-    //       },
-    //       currentJobCount: { $sum: '$currentJobCount' },
-    //       totalPrice: { $sum: '$currentPrice' }
-    //     }
-    //   },
-    //   {
-    //     $group: {
-    //       _id: '$_id.branch',
-    //       subdivisions: {
-    //         $push: {
-    //           subdivisionId: '$_id.subdivision',
-    //           currentJobCount: '$currentJobCount',
-    //           totalPrice: '$totalPrice',
-    //           services: '$services'
-    //         }
-    //       },
-    //       totalJobCount: { $sum: '$currentJobCount' },
-    //       totalPrice: { $sum: '$totalPrice' }
-    //     }
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: 'branches',
-    //       localField: '_id',
-    //       foreignField: '_id',
-    //       as: 'branch'
-    //     }
-    //   },
-    //   {
-    //     $unwind: {
-    //       path: '$branch',
-    //       preserveNullAndEmptyArrays: true
-    //     }
-    //   },
-    //   {
-    //     $project: {
-    //       _id: 0,
-    //       branch: '$_id',
-    //       name: '$branch.name',
-    //       totalJobCount: '$totalJobCount',
-    //       totalPrice: '$totalPrice',
-    //       subdivisions: {
-    //         $map: {
-    //           input: '$subdivisions',
-    //           as: 'subdivision',
-    //           in: {
-    //             subdivision: '$$subdivision.subdivisionId',
-    //             name: {
-    //               $let: {
-    //                 vars: {
-    //                   matchedSubdivision: {
-    //                     $arrayElemAt: [
-    //                       {
-    //                         $filter: {
-    //                           input: '$branch.subdivisions',
-    //                           as: 'sub',
-    //                           cond: {
-    //                             $eq: ['$$sub._id', '$$subdivision.subdivisionId']
-    //                           }
-    //                         }
-    //                       },
-    //                       0
-    //                     ]
-    //                   }
-    //                 },
-    //                 in: '$$matchedSubdivision.name'
-    //               }
-    //             },
-    //             totalJobCount: '$$subdivision.currentJobCount',
-    //             totalPrice: '$$subdivision.totalPrice',
-    //             services: {
-    //               $map: {
-    //                 input: {
-    //                   $filter: {
-    //                     input: '$$subdivision.services',
-    //                     as: 'service',
-    //                     cond: { $gt: ['$$service.currentJobCount', 0] }
-    //                   }
-    //                 },
-    //                 as: 'service',
-    //                 in: {
-    //                   service: '$$service.serviceId',
-    //                   code: '$$service.code',
-    //                   name: '$$service.name',
-    //                   price: '$$service.price',
-    //                   totalJobCount: '$$service.currentJobCount',
-    //                   totalPrice: '$$service.currentPrice'
-    //                 }
-    //               }
-    //             }
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // ]);
+    return await this.reportModel.aggregate([
+      {
+        $match: {
+          monthOfReport,
+          yearOfReport
+        }
+      },
+      {
+        $group: {
+          _id: {
+            branch: '$branch',
+            subdivision: '$subdivision',
+            service: '$service'
+          },
+          currentJobCount: {
+            $sum: { $ifNull: ['$currentJobCount', 0] }
+          },
+          department: { $first: '$department' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'services',
+          localField: '_id.service',
+          foreignField: '_id',
+          as: 'serviceDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$serviceDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $addFields: {
+          currentPrice: {
+            $multiply: ['$serviceDetails.price', '$currentJobCount']
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'departments',
+          localField: 'department',
+          foreignField: '_id',
+          as: 'departmentDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$departmentDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          _id: {
+            branch: '$_id.branch',
+            subdivision: '$_id.subdivision'
+          },
+          services: {
+            $push: {
+              serviceId: '$_id.service',
+              totalJobCount: '$currentJobCount',
+              totalPrice: '$currentPrice',
+              code: '$serviceDetails.code',
+              name: '$serviceDetails.name',
+              price: '$serviceDetails.price',
+              department: {
+                id: '$departmentDetails._id',
+                name: '$departmentDetails.name',
+                phone: '$departmentDetails.phone',
+                manager: '$departmentDetails.manager'
+              }
+            }
+          },
+          currentJobCount: { $sum: '$currentJobCount' },
+          totalPrice: { $sum: '$currentPrice' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'subdivisions',
+          localField: '_id.subdivision',
+          foreignField: '_id',
+          as: 'subdivisionDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$subdivisionDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.branch',
+          subdivisions: {
+            $push: {
+              subdivision: '$subdivisionDetails',
+              currentJobCount: '$currentJobCount',
+              totalPrice: '$totalPrice',
+              services: '$services'
+            }
+          },
+          totalJobCount: { $sum: '$currentJobCount' },
+          totalPrice: { $sum: '$totalPrice' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'branches',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'branchDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$branchDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          id: '$branchDetails._id',
+          name: '$branchDetails.name',
+          description: '$branchDetails.description',
+          totalJobCount: '$totalJobCount',
+          totalPrice: '$totalPrice',
+          subdivisions: {
+            $map: {
+              input: '$subdivisions',
+              as: 'subdivision',
+              in: {
+                id: '$$subdivision.subdivision._id',
+                name: '$$subdivision.subdivision.name',
+                description: '$$subdivision.subdivision.description',
+                totalJobCount: '$$subdivision.currentJobCount',
+                totalPrice: '$$subdivision.totalPrice',
+                services: {
+                  $filter: {
+                    input: '$$subdivision.services',
+                    as: 'service',
+                    cond: { $gt: ['$$service.totalJobCount', 0] }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          id: 1,
+          name: 1,
+          description: 1,
+          totalJobCount: 1,
+          totalPrice: 1,
+          subdivisions: {
+            $filter: {
+              input: '$subdivisions',
+              as: 'subdivision',
+              cond: { $gt: [{ $size: '$$subdivision.services' }, 0] }
+            }
+          }
+        }
+      }
+    ]);
   }
 
   async getSubdivisionById(id: string, sheetDto: SheetDto): Promise<any> {

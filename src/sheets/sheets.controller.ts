@@ -61,8 +61,8 @@ export class SheetsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: Sheet })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getBranchByIds(@Param('id') id: string, @Query() sheetDto: SheetDto): Promise<Sheet> {
-    return await this.sheetsService.getBranchById(id, sheetDto);
+  async getBranchByIds(@Query() sheetDto: SheetDto): Promise<Sheet> {
+    return await this.sheetsService.getBranchByIds(sheetDto);
   }
 
   @Get('branches/:id')
