@@ -170,12 +170,32 @@ export class ReportsService {
       throw new BadRequestException('Недійсний ідентифікатор запису');
     }
     try {
+      const report = await this.reportModel
+        .findById(id)
+        .select({ previousJobCount: 1, changesJobCount: 1, currentJobCount: 1 });
+
+      if (!report) {
+        throw new NotFoundException('Запис не знайдено');
+      }
+
       const updatedReport = await this.reportModel
-        .findByIdAndUpdate(id, { $set: updateReportDto }, { new: true })
+        .findByIdAndUpdate(
+          id,
+          {
+            $set: {
+              previousJobCount: report.previousJobCount,
+              changesJobCount: updateReportDto.changesJobCount,
+              currentJobCount: report.previousJobCount + updateReportDto.changesJobCount
+            }
+          },
+          { new: true }
+        )
         .exec();
+
       if (!updatedReport) {
         throw new NotFoundException('Запис не знайдено');
       }
+
       return updatedReport;
     } catch (error) {
       if (error.code === 11000 && error?.keyPattern && error?.keyPattern.name) {
