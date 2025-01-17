@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDate, IsNumber } from 'class-validator';
+
 import { Branch } from 'src/branches/schemas/branch.schema';
 import { Department } from 'src/departments/schemas/department.schema';
 import { Service } from 'src/services/schemas/service.schema';

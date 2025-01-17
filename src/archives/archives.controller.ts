@@ -25,7 +25,7 @@ import { Archive } from './schemas/archive.schema';
 @ApiBearerAuth('JWT Guard')
 @UseGuards(AccessTokenGuard, RolesGuard)
 export class ArchivesController {
-  constructor(private readonly reportsService: ArchivesService) {}
+  constructor(private readonly archivesService: ArchivesService) {}
 
   @Post(':department')
   @Roles([ProfileRole.ADMINISTRATOR])
@@ -38,7 +38,7 @@ export class ArchivesController {
   @ApiConflictResponse({ description: 'Конфлікт даних' })
   @ApiParam({ name: 'department', description: 'ID Ідентифікатор відділу', type: String })
   async create(@Param('department') department: string): Promise<Boolean> {
-    return await this.reportsService.create(department);
+    return await this.archivesService.create(department);
   }
 
   @Get(':department')
@@ -52,7 +52,7 @@ export class ArchivesController {
   @ApiNotFoundResponse({ description: 'Не знайдено' })
   @ApiParam({ name: 'department', description: 'ID Ідентифікатор відділу', type: String })
   async findOne(@Param('department') department: string): Promise<Archive[]> {
-    return await this.reportsService.findOne(department);
+    return await this.archivesService.findOne(department);
   }
 
   @Delete(':department')
@@ -66,6 +66,6 @@ export class ArchivesController {
   @ApiNotFoundResponse({ description: 'Не знайдено' })
   @ApiParam({ name: 'department', description: 'ID Ідентифікатор відділу', type: String })
   async removeOne(@Param('department') department: string): Promise<DeleteResult> {
-    return await this.reportsService.removeOne(department);
+    return await this.archivesService.removeOne(department);
   }
 }

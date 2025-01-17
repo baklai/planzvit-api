@@ -5,18 +5,13 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DeleteResult, Model, PaginateModel, Types } from 'mongoose';
-
-import { Report } from 'src/reports/schemas/report.schema';
+import { DeleteResult, Model, Types } from 'mongoose';
 
 import { Archive } from './schemas/archive.schema';
 
 @Injectable()
 export class ArchivesService {
-  constructor(
-    @InjectModel(Archive.name) private readonly archiveModel: PaginateModel<Archive>,
-    @InjectModel(Report.name) private readonly reportModel: Model<Report>
-  ) {}
+  constructor(@InjectModel(Archive.name) private readonly archiveModel: Model<Archive>) {}
 
   async create(departmentId: string): Promise<Boolean> {
     try {
