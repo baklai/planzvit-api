@@ -51,6 +51,10 @@ export class NoticesService {
     return deletedNotice;
   }
 
+  async findAllProfiles(): Promise<Profile[]> {
+    return await this.profileModel.find({}).select({ id: 1, fullname: 1 }).exec();
+  }
+
   @Cron('0 0 * * *')
   async handleTaskNotice() {
     let error = false;

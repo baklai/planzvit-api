@@ -15,7 +15,7 @@ import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-import { ProfileRole } from 'src/profiles/schemas/profile.schema';
+import { Profile, ProfileRole } from 'src/profiles/schemas/profile.schema';
 import { CreateNoticeDto } from './dto/create-notice.dto';
 import { NoticesService } from './notices.service';
 import { Notice } from './schemas/notice.schema';
@@ -47,6 +47,15 @@ export class NoticesController {
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   async findAll(@Request() req: Record<string, any>): Promise<Notice[]> {
     return await this.noticesService.findAll(req.user.id);
+  }
+
+  @Get('profiles')
+  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @ApiOperation({ summary: 'Get all records by ID', description: 'Необхідні дозволи: []' })
+  @ApiOkResponse({ description: 'Успіх', type: [Profile] })
+  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  async findAllProfiles(): Promise<Profile[]> {
+    return await this.noticesService.findAllProfiles();
   }
 
   @Delete(':id')
