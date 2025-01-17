@@ -223,7 +223,7 @@ export class ReportsService {
 
       const updatedReport = await this.reportModel
         .updateMany(
-          { department, monthOfReport, yearOfReport },
+          { department: new Types.ObjectId(department), monthOfReport, yearOfReport },
           { $set: { closed: closed } },
           { upsert: true }
         )
