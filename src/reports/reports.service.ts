@@ -253,7 +253,7 @@ export class ReportsService {
     }
 
     const deletedReport = await this.reportModel
-      .deleteMany({ department, monthOfReport, yearOfReport })
+      .deleteMany({ department: new Types.ObjectId(department), monthOfReport, yearOfReport })
       .exec();
 
     if (!deletedReport) {
