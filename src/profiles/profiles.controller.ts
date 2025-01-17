@@ -1,27 +1,27 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Query, UseGuards } from '@nestjs/common';
-import { PaginateResult } from 'mongoose';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiBearerAuth,
   ApiOperation,
   ApiParam,
-  ApiBody,
   ApiTags
 } from '@nestjs/swagger';
+import { PaginateResult } from 'mongoose';
 
+import { Roles } from 'src/common/decorators/roles.decorator';
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
 
-import { ProfilesService } from './profiles.service';
-import { PaginateProfile, Profile, ProfileRole } from './schemas/profile.schema';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ProfilesService } from './profiles.service';
+import { PaginateProfile, Profile, ProfileRole } from './schemas/profile.schema';
 
 @ApiTags('Профілі')
 @Controller('profiles')
@@ -34,7 +34,7 @@ export class ProfilesController {
   @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Profile })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -48,7 +48,7 @@ export class ProfilesController {
   @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateProfile })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -60,7 +60,7 @@ export class ProfilesController {
   @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Profile })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -74,7 +74,7 @@ export class ProfilesController {
   @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Оновити запис за ID',
-    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Profile })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -93,7 +93,7 @@ export class ProfilesController {
   @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Profile })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

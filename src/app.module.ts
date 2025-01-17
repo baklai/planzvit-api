@@ -15,10 +15,12 @@ import appConfig from './config/app.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
+import { ArchivesModule } from './archives/archives.module';
 import { AuthModule } from './auth/auth.module';
 import { BranchesModule } from './branches/branches.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { DepartmentsModule } from './departments/departments.module';
+import { NoticesModule } from './notices/notices.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { ReportsModule } from './reports/reports.module';
 import { ServicesModule } from './services/services.module';
@@ -26,7 +28,6 @@ import { SheetsModule } from './sheets/sheets.module';
 import { StatisticsModule } from './statistics/statistics.module';
 import { SubdivisionsModule } from './subdivisions/subdivisions.module';
 import { SyslogsModule } from './syslogs/syslogs.module';
-import { NoticesModule } from './notices/notices.module';
 
 function createStaticModule(directory: string, serveRoot: string, exclude = ['/api/(.*)']) {
   if (!directory || !serveRoot) return [];
@@ -102,8 +103,9 @@ const AppStaticModule = createStaticModule('app', '/', ['/api/(.*)']);
     SubdivisionsModule,
     ReportsModule,
     SheetsModule,
-    NoticesModule,
+    ArchivesModule,
     StatisticsModule,
+    NoticesModule,
     SyslogsModule
   ],
   controllers: [AppController],

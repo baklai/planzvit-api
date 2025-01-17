@@ -1,9 +1,9 @@
 import { Controller, Get, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { Roles } from 'src/common/decorators/roles.decorator';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
 import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 
 import { StatisticsService } from './statistics.service';
@@ -19,10 +19,7 @@ export class StatisticsController {
   @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати статистику',
-    description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
+    description: `Необхідні ролі: [${[ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @HttpCode(HttpStatus.OK)
   async dashboard() {
@@ -33,8 +30,7 @@ export class StatisticsController {
   @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати статистику',
-    description:
-      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @HttpCode(HttpStatus.OK)
   async database() {
@@ -45,7 +41,7 @@ export class StatisticsController {
   @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати статистику',
-    description: 'Необхідні ролі: [' + [ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @HttpCode(HttpStatus.OK)
   async datacore() {

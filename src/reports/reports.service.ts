@@ -26,7 +26,65 @@ export class ReportsService {
     @InjectModel(Subdivision.name) private readonly subdivisionModel: Model<Subdivision>
   ) {}
 
-  async createAllByDepartmentId(departmentId: string): Promise<Boolean> {
+  async updateReportByReportId(
+    id: string,
+    updateReportCountDto: UpdateReportCountDto
+  ): Promise<Report> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Недійсний ідентифікатор запису');
+    }
+    try {
+      const report = await this.reportModel
+        .findById(id)
+        .select({ previousJobCount: 1, changesJobCount: 1, currentJobCount: 1, completed: 1 });
+
+      if (!report) {
+        throw new NotFoundException('Запис не знайдено');
+      }
+
+      if (report?.completed === true) {
+        throw new NotFoundException('Запис закрито для редагування');
+      }
+
+      const updatedReport = await this.reportModel
+        .findByIdAndUpdate(
+          id,
+          {
+            $set: {
+              previousJobCount: report.previousJobCount,
+              changesJobCount: updateReportCountDto.changesJobCount,
+              currentJobCount: report.previousJobCount + updateReportCountDto.changesJobCount
+            }
+          },
+          { new: true }
+        )
+        .exec();
+
+      if (!updatedReport) {
+        throw new NotFoundException('Запис не знайдено');
+      }
+
+      return updatedReport;
+    } catch (error) {
+      if (error.code === 11000 && error?.keyPattern && error?.keyPattern.name) {
+        throw new ConflictException('Запис із такою назвою вже існує');
+      }
+      throw error;
+    }
+  }
+
+  async findFiltersByReport(): Promise<any> {
+    const [deparments, services, branches, subdivisions] = await Promise.all([
+      this.departmentModel.find({}, { name: 1, description: 1, manager: 1 }),
+      this.serviceModel.find({}, { code: 1, name: 1 }),
+      this.branchModel.find({}, { name: 1, description: 1 }),
+      this.subdivisionModel.find({}, { name: 1, description: 1 })
+    ]);
+
+    return { deparments, services, branches, subdivisions };
+  }
+
+  async createReportByDepartmentId(departmentId: string): Promise<Boolean> {
     try {
       if (!Types.ObjectId.isValid(departmentId)) {
         throw new BadRequestException('Недійсний ідентифікатор відділу');
@@ -123,7 +181,7 @@ export class ReportsService {
     }
   }
 
-  async findAllByDepartmentId(department: string): Promise<Report[]> {
+  async findReportByDepartmentId(department: string): Promise<Report[]> {
     if (!Types.ObjectId.isValid(department)) {
       throw new BadRequestException('Недійсний ідентифікатор відділу');
     }
@@ -137,54 +195,7 @@ export class ReportsService {
       .exec();
   }
 
-  async updateOneByReportId(
-    id: string,
-    updateReportCountDto: UpdateReportCountDto
-  ): Promise<Report> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Недійсний ідентифікатор запису');
-    }
-    try {
-      const report = await this.reportModel
-        .findById(id)
-        .select({ previousJobCount: 1, changesJobCount: 1, currentJobCount: 1, completed: 1 });
-
-      if (!report) {
-        throw new NotFoundException('Запис не знайдено');
-      }
-
-      if (report?.completed === true) {
-        throw new NotFoundException('Запис закрито для редагування');
-      }
-
-      const updatedReport = await this.reportModel
-        .findByIdAndUpdate(
-          id,
-          {
-            $set: {
-              previousJobCount: report.previousJobCount,
-              changesJobCount: updateReportCountDto.changesJobCount,
-              currentJobCount: report.previousJobCount + updateReportCountDto.changesJobCount
-            }
-          },
-          { new: true }
-        )
-        .exec();
-
-      if (!updatedReport) {
-        throw new NotFoundException('Запис не знайдено');
-      }
-
-      return updatedReport;
-    } catch (error) {
-      if (error.code === 11000 && error?.keyPattern && error?.keyPattern.name) {
-        throw new ConflictException('Запис із такою назвою вже існує');
-      }
-      throw error;
-    }
-  }
-
-  async updateAllByDepartmentId(
+  async updateReportByDepartmentId(
     department: string,
     updateReportStatusDto: UpdateReportStatusDto
   ): Promise<Record<string, any>> {
@@ -216,7 +227,7 @@ export class ReportsService {
     }
   }
 
-  async removeAllByDepartmentId(department: string): Promise<DeleteResult> {
+  async removeReportByDepartmentId(department: string): Promise<DeleteResult> {
     if (!Types.ObjectId.isValid(department)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');
     }
@@ -230,16 +241,5 @@ export class ReportsService {
     }
 
     return deleteResult;
-  }
-
-  async findCollecrions(): Promise<any> {
-    const [deparments, services, branches, subdivisions] = await Promise.all([
-      this.departmentModel.find({}, { name: 1, description: 1, manager: 1 }),
-      this.serviceModel.find({}, { code: 1, name: 1 }),
-      this.branchModel.find({}, { name: 1, description: 1 }),
-      this.subdivisionModel.find({}, { name: 1, description: 1 })
-    ]);
-
-    return { deparments, services, branches, subdivisions };
   }
 }
