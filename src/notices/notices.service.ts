@@ -1,32 +1,32 @@
-import { BadRequestException, NotFoundException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { Model, Types } from 'mongoose';
 
-import { ProfilesService } from 'src/profiles/profiles.service';
 import { Syslog } from 'src/syslogs/schemas/syslog.schema';
 
-import { Notice } from './schemas/notice.schema';
+import { Profile } from 'src/profiles/schemas/profile.schema';
 import { CreateNoticeDto } from './dto/create-notice.dto';
+import { Notice } from './schemas/notice.schema';
 
 @Injectable()
 export class NoticesService {
   constructor(
     @InjectModel(Notice.name) private readonly noticeModel: Model<Notice>,
-    @InjectModel(Syslog.name) private readonly syslogModel: Model<Syslog>,
-    private readonly profilesService: ProfilesService
+    @InjectModel(Profile.name) private readonly profileModel: Model<Profile>,
+    @InjectModel(Syslog.name) private readonly syslogModel: Model<Syslog>
   ) {}
 
   async create(createNoticeDto: CreateNoticeDto): Promise<Notice[]> {
-    // const { profiles } = await this.profilesService.findProfilesForNotice(createNoticeDto.profiles);
+    const profiles = await this.profileModel
+      .find({ isActivated: true, _id: { $in: createNoticeDto.profiles } })
+      .select({ id: 1 });
 
-    // return await this.noticeModel.create(
-    //   profiles.map(profile => {
-    //     return { profile, title: createNoticeDto.title, text: createNoticeDto.text };
-    //   })
-    // );
-
-    return [];
+    return await this.noticeModel.create(
+      profiles.map(profile => {
+        return { profile, title: createNoticeDto.title, text: createNoticeDto.text };
+      })
+    );
   }
 
   async findAll(profile: string): Promise<Notice[]> {

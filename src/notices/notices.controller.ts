@@ -1,24 +1,24 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiBearerAuth,
   ApiParam,
-  ApiBody,
   ApiTags
 } from '@nestjs/swagger';
 
-import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
+
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-
+import { ProfileRole } from 'src/profiles/schemas/profile.schema';
+import { CreateNoticeDto } from './dto/create-notice.dto';
 import { NoticesService } from './notices.service';
 import { Notice } from './schemas/notice.schema';
-import { CreateNoticeDto } from './dto/create-notice.dto';
 
 @ApiTags('Повідомлення')
 @Controller('notices')
@@ -28,11 +28,10 @@ export class NoticesController {
   constructor(private readonly noticesService: NoticesService) {}
 
   @Post()
-  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description:
-      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: 'Потрібені права адміністратора'
   })
   @ApiCreatedResponse({ description: 'Успіх', type: [Notice] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -43,14 +42,7 @@ export class NoticesController {
 
   @Get()
   @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
-  @ApiOperation({
-    summary: 'Отримати всі записи',
-    description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
-  })
-  @ApiOperation({ summary: 'Get all records by ID', description: 'Необхідні ролі: []' })
+  @ApiOperation({ summary: 'Get all records by ID', description: 'Необхідні дозволи: []' })
   @ApiOkResponse({ description: 'Успіх', type: [Notice] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   async findAll(@Request() req: Record<string, any>): Promise<Notice[]> {
@@ -61,10 +53,7 @@ export class NoticesController {
   @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description:
-      'Необхідні ролі: [' +
-      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
-      ']'
+    description: 'Необхідні дозволи: []'
   })
   @ApiOkResponse({ description: 'Успіх', type: Notice })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
