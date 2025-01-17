@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDate, IsMongoId, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDate, IsMongoId, IsNumber, IsOptional, IsString } from 'class-validator';
 import mongoose, { HydratedDocument } from 'mongoose';
 
 import { Branch } from 'src/branches/schemas/branch.schema';
@@ -91,6 +91,12 @@ export class Report {
   @IsOptional()
   @Prop({ type: Number, default: 0 })
   readonly currentJobCount: number;
+
+  @ApiPropertyOptional({ description: 'Статус на поточний місяць', example: false })
+  @IsBoolean()
+  @IsOptional()
+  @Prop({ type: Boolean, default: false })
+  readonly closed: boolean;
 
   @ApiPropertyOptional({ description: 'Дата створення запису', example: new Date() })
   @IsDate()

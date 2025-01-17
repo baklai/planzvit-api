@@ -16,6 +16,7 @@ import { Subdivision } from 'src/subdivisions/schemas/subdivision.schema';
 import { CreateReportDto } from './dto/create-report.dto';
 import { QueryReportDto } from './dto/query-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { UpdateStatusReportDto } from './dto/update-status-report.dto';
 
 @Injectable()
 export class ReportsService {
@@ -178,6 +179,10 @@ export class ReportsService {
         throw new NotFoundException('Запис не знайдено');
       }
 
+      if (report?.closed === true) {
+        throw new NotFoundException('Запис закрито для редагування');
+      }
+
       const updatedReport = await this.reportModel
         .findByIdAndUpdate(
           id,
@@ -189,6 +194,38 @@ export class ReportsService {
             }
           },
           { new: true }
+        )
+        .exec();
+
+      if (!updatedReport) {
+        throw new NotFoundException('Запис не знайдено');
+      }
+
+      return updatedReport;
+    } catch (error) {
+      if (error.code === 11000 && error?.keyPattern && error?.keyPattern.name) {
+        throw new ConflictException('Запис із такою назвою вже існує');
+      }
+      throw error;
+    }
+  }
+
+  async updateOneStatusById(
+    department: string,
+    updateStatusReportDto: UpdateStatusReportDto
+  ): Promise<Record<string, any>> {
+    if (!Types.ObjectId.isValid(department)) {
+      throw new BadRequestException('Недійсний ідентифікатор запису');
+    }
+
+    try {
+      const { monthOfReport, yearOfReport, closed } = updateStatusReportDto;
+
+      const updatedReport = await this.reportModel
+        .updateMany(
+          { department, monthOfReport, yearOfReport },
+          { $set: { closed: closed } },
+          { upsert: true }
         )
         .exec();
 

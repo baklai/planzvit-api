@@ -20,6 +20,7 @@ import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 import { CreateReportDto } from './dto/create-report.dto';
 import { QueryReportDto } from './dto/query-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { UpdateStatusReportDto } from './dto/update-status-report.dto';
 import { ReportsService } from './reports.service';
 import { Report } from './schemas/report.schema';
 
@@ -87,6 +88,28 @@ export class ReportsController {
     @Body() updateReportDto: UpdateReportDto
   ): Promise<Report> {
     return await this.reportsService.updateOneById(id, updateReportDto);
+  }
+
+  @Put(':department/status')
+  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @ApiOperation({
+    summary: 'Оновити запис за ID',
+    description:
+      'Необхідні ролі: [' +
+      [ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') +
+      ']'
+  })
+  @ApiOkResponse({ description: 'Успіх', type: Object })
+  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  @ApiNotFoundResponse({ description: 'Не знайдено' })
+  @ApiConflictResponse({ description: 'Конфлікт даних' })
+  @ApiParam({ name: 'department', description: 'ID Ідентифікатор запису', type: String })
+  @ApiBody({ description: "Об'єкт тіла запиту", type: UpdateStatusReportDto })
+  async updateOneStatusById(
+    @Param('department') department: string,
+    @Body() updateStatusReportDto: UpdateStatusReportDto
+  ): Promise<Record<string, any>> {
+    return await this.reportsService.updateOneStatusById(department, updateStatusReportDto);
   }
 
   @Delete(':department')
