@@ -26,44 +26,33 @@ export class Archive {
   readonly completedAt: Date;
 
   @ApiProperty({ description: 'Ідентифікатор відділу', example: '6299b5cebf44864bfcea37a5' })
-  @IsString()
-  @IsMongoId()
-  @Prop({ type: Department, default: null })
+  @Prop({ type: Object, default: null })
   readonly department: Department;
 
   @ApiProperty({ description: 'Ідентифікатор сервісу', example: '6299b5cebf44864bfcea37a5' })
-  @IsString()
-  @IsMongoId()
-  @Prop({ type: Service, default: null })
+  @Prop({ type: Object, default: null })
   readonly service: Service;
 
   @ApiProperty({ description: 'Ідентифікатор служби/філії', example: '6299b5cebf44864bfcea37a5' })
-  @IsString()
-  @IsMongoId()
-  @Prop({ type: Branch, default: null })
+  @Prop({ type: Object, default: null })
   readonly branch: Branch;
 
   @ApiProperty({ description: 'Ідентифікатор підрозділу', example: '6299b5cebf44864bfcea37a5' })
-  @IsString()
-  @IsMongoId()
-  @Prop({ type: Subdivision, default: null })
+  @Prop({ type: Object, default: null })
   readonly subdivision: Subdivision;
 
-  @ApiPropertyOptional({ description: 'Кількість робіт за попередній місяць', example: 50 })
+  @ApiProperty({ description: 'Кількість робіт за попередній місяць', example: 50 })
   @IsNumber()
-  @IsOptional()
   @Prop({ type: Number, default: 0 })
   readonly previousJobCount: number;
 
-  @ApiPropertyOptional({ description: 'Кількість нових робіт за поточний місяць', example: -5 })
+  @ApiProperty({ description: 'Кількість нових робіт за поточний місяць', example: -5 })
   @IsNumber()
-  @IsOptional()
   @Prop({ type: Number, default: 0 })
   readonly changesJobCount: number;
 
-  @ApiPropertyOptional({ description: 'Кількість робіт всього на поточний місяць', example: 45 })
+  @ApiProperty({ description: 'Кількість робіт всього на поточний місяць', example: 45 })
   @IsNumber()
-  @IsOptional()
   @Prop({ type: Number, default: 0 })
   readonly currentJobCount: number;
 

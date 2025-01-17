@@ -61,6 +61,18 @@ export class ReportsController {
     return await this.reportsService.findFiltersByReport();
   }
 
+  @Post('archive')
+  @Roles([ProfileRole.ADMINISTRATOR])
+  @ApiOperation({
+    summary: 'Створити новий запис',
+    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
+  })
+  @ApiCreatedResponse({ description: 'Успіх', type: Boolean })
+  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  async createReportArchive(): Promise<Boolean> {
+    return await this.reportsService.createReportArchive();
+  }
+
   @Post('department/:id')
   @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({

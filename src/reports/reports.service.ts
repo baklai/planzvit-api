@@ -2,11 +2,13 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, Model, PaginateModel, Types } from 'mongoose';
 
+import { Archive } from 'src/archives/schemas/archive.schema';
 import { Branch } from 'src/branches/schemas/branch.schema';
 import { Department } from 'src/departments/schemas/department.schema';
 import { Report } from 'src/reports/schemas/report.schema';
@@ -20,6 +22,7 @@ import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 export class ReportsService {
   constructor(
     @InjectModel(Report.name) private readonly reportModel: PaginateModel<Report>,
+    @InjectModel(Archive.name) private readonly archiveModel: Model<Archive>,
     @InjectModel(Department.name) private readonly departmentModel: Model<Department>,
     @InjectModel(Service.name) private readonly serviceModel: Model<Service>,
     @InjectModel(Branch.name) private readonly branchModel: Model<Branch>,
@@ -82,6 +85,38 @@ export class ReportsService {
     ]);
 
     return { deparments, services, branches, subdivisions };
+  }
+
+  async createReportArchive(): Promise<Boolean> {
+    try {
+      const report = await this.reportModel
+        .find({})
+        .select({
+          id: 1,
+          department: 1,
+          service: 1,
+          branch: 1,
+          subdivision: 1,
+          previousJobCount: 1,
+          changesJobCount: 1,
+          currentJobCount: 1,
+          createdAt: 1,
+          updatedAt: 1
+        })
+        .populate('department', { id: 1, name: 1, description: 1, phone: 1, manager: 1 })
+        .populate('service', { id: 1, code: 1, name: 1, price: 1 })
+        .populate('branch', { id: 1, name: 1, description: 1 })
+        .populate('subdivision', { id: 1, name: 1, description: 1 })
+        .exec();
+
+      const objectReport = report.map(item => item.toObject());
+
+      await this.archiveModel.insertMany(objectReport);
+
+      return true;
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
+    }
   }
 
   async createReportByDepartmentId(departmentId: string): Promise<Boolean> {
