@@ -20,16 +20,6 @@ export class Report {
   @IsMongoId()
   readonly id: string;
 
-  @ApiProperty({ description: 'Місяць створення звіту', example: 12 })
-  @IsNumber()
-  @Prop({ type: Number, required: true })
-  readonly monthOfReport: number;
-
-  @ApiProperty({ description: 'Рік створення звіту', example: 2024 })
-  @IsNumber()
-  @Prop({ type: Number, required: true })
-  readonly yearOfReport: number;
-
   @ApiProperty({ description: 'Ідентифікатор відділу', example: '6299b5cebf44864bfcea37a5' })
   @IsString()
   @IsMongoId()
@@ -92,11 +82,11 @@ export class Report {
   @Prop({ type: Number, default: 0 })
   readonly currentJobCount: number;
 
-  @ApiPropertyOptional({ description: 'Статус на поточний місяць', example: false })
+  @ApiPropertyOptional({ description: 'Статус на поточний час', example: false })
   @IsBoolean()
   @IsOptional()
   @Prop({ type: Boolean, default: false })
-  readonly closed: boolean;
+  readonly completed: boolean;
 
   @ApiPropertyOptional({ description: 'Дата створення запису', example: new Date() })
   @IsDate()

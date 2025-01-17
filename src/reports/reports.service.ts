@@ -5,18 +5,16 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, PaginateModel, Types } from 'mongoose';
+import { DeleteResult, Model, PaginateModel, Types } from 'mongoose';
 
 import { Branch } from 'src/branches/schemas/branch.schema';
 import { Department } from 'src/departments/schemas/department.schema';
 import { Report } from 'src/reports/schemas/report.schema';
 import { Service } from 'src/services/schemas/service.schema';
-
 import { Subdivision } from 'src/subdivisions/schemas/subdivision.schema';
-import { CreateReportDto } from './dto/create-report.dto';
-import { QueryReportDto } from './dto/query-report.dto';
-import { UpdateReportDto } from './dto/update-report.dto';
-import { UpdateStatusReportDto } from './dto/update-status-report.dto';
+
+import { UpdateReportCountDto } from './dto/update-report-count.dto';
+import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 
 @Injectable()
 export class ReportsService {
@@ -28,12 +26,10 @@ export class ReportsService {
     @InjectModel(Subdivision.name) private readonly subdivisionModel: Model<Subdivision>
   ) {}
 
-  async createOneById(departmentId: string, createReportDto: CreateReportDto): Promise<Boolean> {
+  async createAllByDepartmentId(departmentId: string): Promise<Boolean> {
     try {
-      const { monthOfReport, yearOfReport } = createReportDto;
-
       if (!Types.ObjectId.isValid(departmentId)) {
-        throw new BadRequestException('Недійсний ідентифікатор запису');
+        throw new BadRequestException('Недійсний ідентифікатор відділу');
       }
 
       const department = await this.departmentModel
@@ -42,7 +38,7 @@ export class ReportsService {
         .exec();
 
       if (!department) {
-        throw new NotFoundException('Запис не знайдено');
+        throw new NotFoundException('Запис відділу не знайдено');
       }
 
       const branches = await this.branchModel
@@ -56,38 +52,27 @@ export class ReportsService {
         for (const branch of branches) {
           for (const subdivision of branch.subdivisions) {
             createdReports.push({
-              monthOfReport,
-              yearOfReport,
               department: department.id,
               service: service.id,
               branch: branch.id,
               subdivision: subdivision.id,
               previousJobCount: 0,
               changesJobCount: 0,
-              currentJobCount: 0
+              currentJobCount: 0,
+              completed: false
             });
           }
         }
       }
 
       const currentReports = await this.reportModel
-        .find(
-          {
-            department: department.id,
-            monthOfReport: monthOfReport,
-            yearOfReport: yearOfReport
-          },
-          null,
-          { autopopulate: false }
-        )
+        .find({ department: department.id }, null, { autopopulate: false })
         .exec();
 
       if (currentReports.length) {
         createdReports.forEach(createdReport => {
           const currentReport = currentReports.find(
-            ({ monthOfReport, yearOfReport, department, service, branch, subdivision }) =>
-              monthOfReport === createdReport.monthOfReport &&
-              yearOfReport === createdReport.yearOfReport &&
+            ({ department, service, branch, subdivision }) =>
               department.toString() === createdReport?.department &&
               service.toString() === createdReport?.service &&
               branch.toString() === createdReport?.branch &&
@@ -101,24 +86,12 @@ export class ReportsService {
           }
         });
 
-        await this.reportModel.deleteMany({
-          department: department.id,
-          monthOfReport: monthOfReport,
-          yearOfReport: yearOfReport
-        });
+        await this.reportModel.deleteMany({ department: department.id });
 
         await this.reportModel.insertMany(createdReports);
       } else {
         const previousReports = await this.reportModel
-          .find(
-            {
-              department: department.id,
-              monthOfReport: monthOfReport - 1 === 0 ? 12 : monthOfReport - 1,
-              yearOfReport: monthOfReport - 1 === 0 ? yearOfReport - 1 : yearOfReport
-            },
-            null,
-            { autopopulate: false }
-          )
+          .find({ department: department.id }, null, { autopopulate: false })
           .exec();
 
         if (previousReports.length) {
@@ -150,15 +123,13 @@ export class ReportsService {
     }
   }
 
-  async findOneById(department: string, queryReportDto: QueryReportDto): Promise<Report[]> {
-    const { monthOfReport, yearOfReport } = queryReportDto;
-
+  async findAllByDepartmentId(department: string): Promise<Report[]> {
     if (!Types.ObjectId.isValid(department)) {
-      throw new BadRequestException('Недійсний ідентифікатор запису');
+      throw new BadRequestException('Недійсний ідентифікатор відділу');
     }
 
     return await this.reportModel
-      .find({ department, monthOfReport, yearOfReport })
+      .find({ department })
       .populate('department', { name: 1, description: 1, phone: 1, manager: 1 })
       .populate('service', { code: 1, name: 1, price: 1 })
       .populate('branch', { name: 1, description: 1 })
@@ -166,20 +137,23 @@ export class ReportsService {
       .exec();
   }
 
-  async updateOneById(id: string, updateReportDto: UpdateReportDto): Promise<Report> {
+  async updateOneByReportId(
+    id: string,
+    updateReportCountDto: UpdateReportCountDto
+  ): Promise<Report> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');
     }
     try {
       const report = await this.reportModel
         .findById(id)
-        .select({ previousJobCount: 1, changesJobCount: 1, currentJobCount: 1 });
+        .select({ previousJobCount: 1, changesJobCount: 1, currentJobCount: 1, completed: 1 });
 
       if (!report) {
         throw new NotFoundException('Запис не знайдено');
       }
 
-      if (report?.closed === true) {
+      if (report?.completed === true) {
         throw new NotFoundException('Запис закрито для редагування');
       }
 
@@ -189,8 +163,8 @@ export class ReportsService {
           {
             $set: {
               previousJobCount: report.previousJobCount,
-              changesJobCount: updateReportDto.changesJobCount,
-              currentJobCount: report.previousJobCount + updateReportDto.changesJobCount
+              changesJobCount: updateReportCountDto.changesJobCount,
+              currentJobCount: report.previousJobCount + updateReportCountDto.changesJobCount
             }
           },
           { new: true }
@@ -210,21 +184,21 @@ export class ReportsService {
     }
   }
 
-  async updateOneStatusById(
+  async updateAllByDepartmentId(
     department: string,
-    updateStatusReportDto: UpdateStatusReportDto
+    updateReportStatusDto: UpdateReportStatusDto
   ): Promise<Record<string, any>> {
     if (!Types.ObjectId.isValid(department)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');
     }
 
     try {
-      const { monthOfReport, yearOfReport, closed } = updateStatusReportDto;
+      const { completed = false } = updateReportStatusDto;
 
       const updatedReport = await this.reportModel
         .updateMany(
-          { department: new Types.ObjectId(department), monthOfReport, yearOfReport },
-          { $set: { closed: closed } },
+          { department: new Types.ObjectId(department) },
+          { $set: { completed: completed } },
           { upsert: true }
         )
         .exec();
@@ -242,25 +216,20 @@ export class ReportsService {
     }
   }
 
-  async removeOneById(
-    department: string,
-    queryReportDto: QueryReportDto
-  ): Promise<Record<string, any>> {
-    const { monthOfReport, yearOfReport } = queryReportDto;
-
+  async removeAllByDepartmentId(department: string): Promise<DeleteResult> {
     if (!Types.ObjectId.isValid(department)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');
     }
 
-    const deletedReport = await this.reportModel
-      .deleteMany({ department: new Types.ObjectId(department), monthOfReport, yearOfReport })
+    const deleteResult = await this.reportModel
+      .deleteMany({ department: new Types.ObjectId(department) })
       .exec();
 
-    if (!deletedReport) {
+    if (!deleteResult) {
       throw new NotFoundException('Запис не знайдено');
     }
 
-    return deletedReport;
+    return deleteResult;
   }
 
   async findCollecrions(): Promise<any> {

@@ -8,8 +8,6 @@ import { Report } from 'src/reports/schemas/report.schema';
 import { Service } from 'src/services/schemas/service.schema';
 import { Sheet } from 'src/sheets/schemas/sheet.schema';
 
-import { SheetDto } from './dto/sheet.dto';
-
 @Injectable()
 export class SheetsService {
   constructor(
@@ -20,9 +18,7 @@ export class SheetsService {
     @InjectModel(Branch.name) private readonly branchModel: Model<Branch>
   ) {}
 
-  async getReportById(department: string, sheetDto: SheetDto): Promise<Record<string, any>[]> {
-    const { monthOfReport, yearOfReport } = sheetDto;
-
+  async getReportById(department: string): Promise<Record<string, any>[]> {
     if (!Types.ObjectId.isValid(department)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');
     }
@@ -30,8 +26,6 @@ export class SheetsService {
     return await this.reportModel
       .find({
         department,
-        monthOfReport,
-        yearOfReport,
         $or: [
           { previousJobCount: { $ne: 0 } },
           { changesJobCount: { $ne: 0 } },
@@ -45,17 +39,13 @@ export class SheetsService {
       .exec();
   }
 
-  async getReportByIds(sheetDto: SheetDto): Promise<Record<string, any>[]> {
-    const { monthOfReport, yearOfReport } = sheetDto;
-
+  async getReportByIds(): Promise<Record<string, any>[]> {
     const departments = await this.departmentModel.find({}, { id: 1 }).exec();
 
     return await this.reportModel.aggregate([
       {
         $match: {
           department: { $in: departments?.map(({ id }) => new Types.ObjectId(id)) || [] },
-          monthOfReport,
-          yearOfReport,
           $or: [
             { previousJobCount: { $ne: 0 } },
             { changesJobCount: { $ne: 0 } },
@@ -121,9 +111,7 @@ export class SheetsService {
     ]);
   }
 
-  async getBranchById(id: string, sheetDto: SheetDto): Promise<any> {
-    const { monthOfReport, yearOfReport } = sheetDto;
-
+  async getBranchById(id: string): Promise<any> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');
     }
@@ -131,9 +119,7 @@ export class SheetsService {
     return await this.reportModel.aggregate([
       {
         $match: {
-          branch: new Types.ObjectId(id),
-          monthOfReport,
-          yearOfReport
+          branch: new Types.ObjectId(id)
         }
       },
       {
@@ -302,16 +288,8 @@ export class SheetsService {
     ]);
   }
 
-  async getBranchByIds(sheetDto: SheetDto): Promise<any> {
-    const { monthOfReport, yearOfReport } = sheetDto;
-
+  async getBranchByIds(): Promise<any> {
     return await this.reportModel.aggregate([
-      {
-        $match: {
-          monthOfReport,
-          yearOfReport
-        }
-      },
       {
         $group: {
           _id: {
@@ -478,9 +456,7 @@ export class SheetsService {
     ]);
   }
 
-  async getSubdivisionById(id: string, sheetDto: SheetDto): Promise<any> {
-    const { monthOfReport, yearOfReport } = sheetDto;
-
+  async getSubdivisionById(id: string): Promise<any> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');
     }
@@ -488,9 +464,7 @@ export class SheetsService {
     return await this.reportModel.aggregate([
       {
         $match: {
-          subdivision: new Types.ObjectId(id),
-          monthOfReport,
-          yearOfReport
+          subdivision: new Types.ObjectId(id)
         }
       },
       {
@@ -604,16 +578,8 @@ export class SheetsService {
     ]);
   }
 
-  async getSubdivisionByIds(sheetDto: SheetDto): Promise<any> {
-    const { monthOfReport, yearOfReport } = sheetDto;
-
+  async getSubdivisionByIds(): Promise<any> {
     return await this.reportModel.aggregate([
-      {
-        $match: {
-          monthOfReport,
-          yearOfReport
-        }
-      },
       {
         $lookup: {
           from: 'subdivisions',
@@ -723,143 +689,5 @@ export class SheetsService {
         }
       }
     ]);
-
-    // return await this.reportModel.aggregate([
-    //   {
-    //     $match: {
-    //       subdivision: new Types.ObjectId(id),
-    //       monthOfReport,
-    //       yearOfReport
-    //     }
-    //   },
-    //   {
-    //     $group: {
-    //       _id: {
-    //         service: '$service',
-    //         branch: '$branch',
-    //         subdivision: '$subdivision',
-    //         department: '$department'
-    //       },
-    //       currentJobCount: {
-    //         $sum: { $ifNull: ['$currentJobCount', 0] }
-    //       }
-    //     }
-    //   },
-    //   {
-    //     $match: {
-    //       currentJobCount: { $gt: 0 }
-    //     }
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: 'services',
-    //       localField: '_id.service',
-    //       foreignField: '_id',
-    //       as: 'service'
-    //     }
-    //   },
-    //   {
-    //     $unwind: {
-    //       path: '$service',
-    //       preserveNullAndEmptyArrays: true
-    //     }
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: 'departments',
-    //       localField: '_id.department',
-    //       foreignField: '_id',
-    //       as: 'department'
-    //     }
-    //   },
-    //   {
-    //     $unwind: {
-    //       path: '$department',
-    //       preserveNullAndEmptyArrays: true
-    //     }
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: 'branches',
-    //       localField: '_id.branch',
-    //       foreignField: '_id',
-    //       as: 'branch'
-    //     }
-    //   },
-    //   {
-    //     $unwind: {
-    //       path: '$branch',
-    //       preserveNullAndEmptyArrays: true
-    //     }
-    //   },
-    //   {
-    //     $unwind: {
-    //       path: '$branch.subdivisions',
-    //       preserveNullAndEmptyArrays: true
-    //     }
-    //   },
-    //   {
-    //     $match: {
-    //       'branch.subdivisions._id': { $eq: new Types.ObjectId(id) }
-    //     }
-    //   },
-    //   {
-    //     $addFields: {
-    //       totalPrice: {
-    //         $multiply: ['$service.price', '$currentJobCount']
-    //       },
-    //       serviceData: {
-    //         id: '$service._id',
-    //         code: '$service.code',
-    //         name: '$service.name',
-    //         price: '$service.price',
-    //         totalJobCount: '$currentJobCount',
-    //         totalPrice: {
-    //           $multiply: ['$service.price', '$currentJobCount']
-    //         },
-    //         department: {
-    //           id: '$department._id',
-    //           name: '$department.name',
-    //           phone: '$department.phone',
-    //           manager: '$department.manager'
-    //         }
-    //       },
-    //       branch: {
-    //         id: '$branch._id',
-    //         name: '$branch.name',
-    //         description: '$branch.description'
-    //       },
-    //       subdivision: {
-    //         id: '$branch.subdivisions._id',
-    //         name: '$branch.subdivisions.name',
-    //         description: '$branch.subdivisions.description'
-    //       }
-    //     }
-    //   },
-    //   {
-    //     $group: {
-    //       _id: '$_id.subdivision',
-    //       services: { $push: '$serviceData' },
-    //       totalPrice: { $sum: '$totalPrice' },
-    //       totalJobCount: { $sum: '$currentJobCount' },
-    //       branch: { $first: '$branch' },
-    //       subdivision: { $first: '$subdivision' }
-    //     }
-    //   },
-    //   {
-    //     $project: {
-    //       _id: 0,
-    //       branch: {
-    //         id: '$branch._id',
-    //         name: '$branch.name',
-    //         description: '$branch.description'
-    //       },
-    //       subdivision: 1,
-    //       services: 1,
-    //       totalPrice: 1,
-    //       totalJobCount: 1
-    //     }
-    //   }
-    // ]);
   }
 }

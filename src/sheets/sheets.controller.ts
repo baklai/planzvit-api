@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -12,7 +12,6 @@ import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 
-import { SheetDto } from './dto/sheet.dto';
 import { Sheet } from './schemas/sheet.schema';
 import { SheetsService } from './sheets.service';
 
@@ -32,8 +31,8 @@ export class SheetsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: [Object] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getReportByIds(@Query() sheetDto: SheetDto): Promise<Record<string, any>[]> {
-    return await this.sheetsService.getReportByIds(sheetDto);
+  async getReportByIds(): Promise<Record<string, any>[]> {
+    return await this.sheetsService.getReportByIds();
   }
 
   @Get('reports/:id')
@@ -45,11 +44,8 @@ export class SheetsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: [Object] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getReportById(
-    @Param('id') id: string,
-    @Query() sheetDto: SheetDto
-  ): Promise<Record<string, any>[]> {
-    return await this.sheetsService.getReportById(id, sheetDto);
+  async getReportById(@Param('id') id: string): Promise<Record<string, any>[]> {
+    return await this.sheetsService.getReportById(id);
   }
 
   @Get('branches')
@@ -61,8 +57,8 @@ export class SheetsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: Sheet })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getBranchByIds(@Query() sheetDto: SheetDto): Promise<Sheet> {
-    return await this.sheetsService.getBranchByIds(sheetDto);
+  async getBranchByIds(): Promise<Sheet> {
+    return await this.sheetsService.getBranchByIds();
   }
 
   @Get('branches/:id')
@@ -74,8 +70,8 @@ export class SheetsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: Sheet })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getBranchById(@Param('id') id: string, @Query() sheetDto: SheetDto): Promise<Sheet> {
-    return await this.sheetsService.getBranchById(id, sheetDto);
+  async getBranchById(@Param('id') id: string): Promise<Sheet> {
+    return await this.sheetsService.getBranchById(id);
   }
 
   @Get('subdivisions')
@@ -87,8 +83,8 @@ export class SheetsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: Sheet })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getSubdivisionByIds(@Query() sheetDto: SheetDto): Promise<Sheet> {
-    return await this.sheetsService.getSubdivisionByIds(sheetDto);
+  async getSubdivisionByIds(): Promise<Sheet> {
+    return await this.sheetsService.getSubdivisionByIds();
   }
 
   @Get('subdivisions/:id')
@@ -100,7 +96,7 @@ export class SheetsController {
   })
   @ApiOkResponse({ description: 'Успіх', type: Sheet })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  async getSubdivisionById(@Param('id') id: string, @Query() sheetDto: SheetDto): Promise<Sheet> {
-    return await this.sheetsService.getSubdivisionById(id, sheetDto);
+  async getSubdivisionById(@Param('id') id: string): Promise<Sheet> {
+    return await this.sheetsService.getSubdivisionById(id);
   }
 }
