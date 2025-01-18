@@ -125,83 +125,55 @@ export class ReportsService {
         throw new BadRequestException('Недійсний ідентифікатор відділу');
       }
 
-      const department = await this.departmentModel
-        .findById(departmentId)
-        .populate('services', { code: 1, name: 1, price: 1 })
-        .exec();
+      const reportCount = await this.reportModel.countDocuments({
+        department: new Types.ObjectId(departmentId)
+      });
 
-      if (!department) {
-        throw new NotFoundException('Запис відділу не знайдено');
-      }
-
-      const branches = await this.branchModel
-        .find({})
-        .populate('subdivisions', { name: 1, description: 1 })
-        .exec();
-
-      const createdReports = [];
-
-      for (const service of department.services) {
-        for (const branch of branches) {
-          for (const subdivision of branch.subdivisions) {
-            createdReports.push({
-              department: department.id,
-              service: service.id,
-              branch: branch.id,
-              subdivision: subdivision.id,
-              previousJobCount: 0,
-              changesJobCount: 0,
-              currentJobCount: 0,
-              completed: false
-            });
+      if (reportCount) {
+        await this.reportModel.aggregate([
+          {
+            $addFields: {
+              previousJobCount: '$currentJobCount',
+              completed: false,
+              changesJobCount: 0
+            }
+          },
+          {
+            $merge: { into: 'reports', whenMatched: 'merge', whenNotMatched: 'fail' }
           }
-        }
-      }
-
-      const currentReports = await this.reportModel
-        .find({ department: department.id }, null, { autopopulate: false })
-        .exec();
-
-      if (currentReports.length) {
-        createdReports.forEach(createdReport => {
-          const currentReport = currentReports.find(
-            ({ department, service, branch, subdivision }) =>
-              department.toString() === createdReport?.department &&
-              service.toString() === createdReport?.service &&
-              branch.toString() === createdReport?.branch &&
-              subdivision.toString() === createdReport?.subdivision
-          );
-
-          if (currentReport) {
-            createdReport.previousJobCount = currentReport.previousJobCount;
-            createdReport.changesJobCount = currentReport.changesJobCount;
-            createdReport.currentJobCount = currentReport.currentJobCount;
-          }
-        });
-
-        await this.reportModel.deleteMany({ department: department.id });
-
-        await this.reportModel.insertMany(createdReports);
+        ]);
       } else {
-        const previousReports = await this.reportModel
-          .find({ department: department.id }, null, { autopopulate: false })
+        const department = await this.departmentModel
+          .findById(departmentId)
+          .populate('services', { code: 1, name: 1, price: 1 })
           .exec();
 
-        if (previousReports.length) {
-          createdReports.forEach(createdReport => {
-            const previousReport = previousReports.find(
-              ({ department, service, branch, subdivision }) =>
-                department.toString() === createdReport?.department &&
-                service.toString() === createdReport?.service &&
-                branch.toString() === createdReport?.branch &&
-                subdivision.toString() === createdReport?.subdivision
-            );
+        if (!department) {
+          throw new NotFoundException('Запис відділу не знайдено');
+        }
 
-            if (previousReport) {
-              createdReport.previousJobCount = previousReport?.currentJobCount || 0;
-              createdReport.currentJobCount = previousReport?.currentJobCount || 0;
+        const branches = await this.branchModel
+          .find({})
+          .populate('subdivisions', { name: 1, description: 1 })
+          .exec();
+
+        const createdReports = [];
+
+        for (const service of department.services) {
+          for (const branch of branches) {
+            for (const subdivision of branch.subdivisions) {
+              createdReports.push({
+                department: department.id,
+                service: service.id,
+                branch: branch.id,
+                subdivision: subdivision.id,
+                previousJobCount: 0,
+                changesJobCount: 0,
+                currentJobCount: 0,
+                completed: false
+              });
             }
-          });
+          }
         }
 
         await this.reportModel.insertMany(createdReports);
