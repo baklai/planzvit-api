@@ -1,22 +1,24 @@
 import {
   BadRequestException,
   ConflictException,
-  NotFoundException,
-  Injectable
+  Injectable,
+  NotFoundException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PaginateModel, PaginateResult, Types } from 'mongoose';
+import { Model, PaginateModel, PaginateResult, Types } from 'mongoose';
 
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
+import { Report } from 'src/reports/schemas/report.schema';
 
-import { Department } from './schemas/department.schema';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { Department } from './schemas/department.schema';
 
 @Injectable()
 export class DepartmentsService {
   constructor(
-    @InjectModel(Department.name) private readonly departmentModel: PaginateModel<Department>
+    @InjectModel(Department.name) private readonly departmentModel: PaginateModel<Department>,
+    @InjectModel(Report.name) private readonly reportModel: Model<Report>
   ) {}
 
   async create(createDepartmentDto: CreateDepartmentDto): Promise<Department> {
@@ -61,13 +63,42 @@ export class DepartmentsService {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');
     }
+
     try {
+      const prevDoc = await this.departmentModel.findById(id).exec();
+
+      if (!prevDoc) {
+        throw new NotFoundException('Запис не знайдено');
+      }
+
       const updatedDepartment = await this.departmentModel
         .findByIdAndUpdate(id, { $set: updateDepartmentDto }, { new: true })
         .exec();
+
       if (!updatedDepartment) {
         throw new NotFoundException('Запис не знайдено');
       }
+
+      const prevServices = prevDoc.services || [];
+      const updatedServices = updatedDepartment.services || [];
+
+      const addedServices = updatedServices.filter(
+        service => Types.ObjectId.isValid(service) && !prevServices.includes(service)
+      );
+      const removedServices = prevServices.filter(
+        service => Types.ObjectId.isValid(service) && !updatedServices.includes(service)
+      );
+
+      if (addedServices.length) {
+        /////////
+      }
+
+      if (removedServices.length) {
+        await this.reportModel
+          .deleteMany({ department: updatedDepartment.id, service: { $in: removedServices } })
+          .exec();
+      }
+
       return updatedDepartment;
     } catch (error) {
       if (error.code === 11000 && error?.keyPattern && error?.keyPattern.name) {
@@ -87,6 +118,8 @@ export class DepartmentsService {
     if (!deletedDepartment) {
       throw new NotFoundException('Запис не знайдено');
     }
+
+    await this.reportModel.deleteMany({ department: deletedDepartment.id }).exec();
 
     return deletedDepartment;
   }

@@ -1,21 +1,27 @@
 import {
   BadRequestException,
   ConflictException,
-  NotFoundException,
-  Injectable
+  Injectable,
+  NotFoundException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Types, PaginateModel, PaginateResult } from 'mongoose';
+import { Model, PaginateModel, PaginateResult, Types } from 'mongoose';
 
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
+import { Department } from 'src/departments/schemas/department.schema';
+import { Report } from 'src/reports/schemas/report.schema';
 
-import { Service } from './schemas/service.schema';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
+import { Service } from './schemas/service.schema';
 
 @Injectable()
 export class ServicesService {
-  constructor(@InjectModel(Service.name) private readonly serviceModel: PaginateModel<Service>) {}
+  constructor(
+    @InjectModel(Service.name) private readonly serviceModel: PaginateModel<Service>,
+    @InjectModel(Department.name) private readonly departmentModel: Model<Department>,
+    @InjectModel(Report.name) private readonly reportModel: Model<Report>
+  ) {}
 
   async create(createServiceDto: CreateServiceDto): Promise<Service> {
     try {
@@ -84,6 +90,12 @@ export class ServicesService {
     if (!deletedService) {
       throw new NotFoundException('Запис не знайдено');
     }
+
+    await this.departmentModel
+      .updateMany({ services: deletedService.id }, { $pull: { services: deletedService.id } })
+      .exec();
+
+    await this.reportModel.deleteMany({ service: deletedService.id }).exec();
 
     return deletedService;
   }

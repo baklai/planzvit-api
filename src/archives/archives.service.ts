@@ -48,9 +48,7 @@ export class ArchivesService {
     }
 
     const deleteResult = await this.archiveModel
-      .deleteMany({
-        department: new Types.ObjectId(department)
-      })
+      .deleteMany({ department: new Types.ObjectId(department) })
       .exec();
 
     if (!deleteResult) {
