@@ -7,6 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PaginateModel, PaginateResult, Types } from 'mongoose';
 
+import { Branch } from 'src/branches/schemas/branch.schema';
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
 import { Report } from 'src/reports/schemas/report.schema';
 
@@ -18,6 +19,7 @@ import { Department } from './schemas/department.schema';
 export class DepartmentsService {
   constructor(
     @InjectModel(Department.name) private readonly departmentModel: PaginateModel<Department>,
+    @InjectModel(Branch.name) private readonly branchModel: Model<Branch>,
     @InjectModel(Report.name) private readonly reportModel: Model<Report>
   ) {}
 
@@ -90,7 +92,31 @@ export class DepartmentsService {
       );
 
       if (addedServices.length) {
-        /////////
+        const branches = await this.branchModel
+          .find({})
+          .populate('subdivisions', { name: 1, description: 1 })
+          .exec();
+
+        const addedReport = [];
+
+        for (const service of addedServices) {
+          for (const branch of branches) {
+            for (const subdivision of branch.subdivisions) {
+              addedReport.push({
+                department: updatedDepartment.id,
+                service: service,
+                branch: branch.id,
+                subdivision: subdivision.id,
+                previousJobCount: 0,
+                changesJobCount: 0,
+                currentJobCount: 0,
+                completed: false
+              });
+            }
+          }
+        }
+
+        await this.reportModel.insertMany(addedReport);
       }
 
       if (removedServices.length) {

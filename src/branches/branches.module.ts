@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { Department, DepartmentSchema } from 'src/departments/schemas/department.schema';
 import { Report, ReportSchema } from 'src/reports/schemas/report.schema';
 
 import { BranchesController } from './branches.controller';
@@ -11,6 +12,7 @@ import { Branch, BranchSchema } from './schemas/branch.schema';
   imports: [
     MongooseModule.forFeature([
       { name: Branch.name, schema: BranchSchema },
+      { name: Department.name, schema: DepartmentSchema },
       { name: Report.name, schema: ReportSchema }
     ])
   ],

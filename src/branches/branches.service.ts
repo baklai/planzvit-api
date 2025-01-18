@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, PaginateModel, PaginateResult, Types } from 'mongoose';
 
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
+import { Department } from 'src/departments/schemas/department.schema';
 import { Report } from 'src/reports/schemas/report.schema';
 
 import { CreateBranchDto } from './dto/create-branch.dto';
@@ -18,6 +19,7 @@ import { Branch } from './schemas/branch.schema';
 export class BranchesService {
   constructor(
     @InjectModel(Branch.name) private readonly branchModel: PaginateModel<Branch>,
+    @InjectModel(Department.name) private readonly departmentModel: Model<Department>,
     @InjectModel(Report.name) private readonly reportModel: Model<Report>
   ) {}
 
@@ -92,7 +94,31 @@ export class BranchesService {
       );
 
       if (addedSubdivisions.length) {
-        /////////
+        const departments = await this.departmentModel
+          .find({})
+          .populate('services', { code: 1, name: 1, price: 1 })
+          .exec();
+
+        const addedReport = [];
+
+        for (const subdivision of addedSubdivisions) {
+          for (const department of departments) {
+            for (const service of department.services) {
+              addedReport.push({
+                department: department.id,
+                service: service.id,
+                branch: updatedBranch.id,
+                subdivision: subdivision,
+                previousJobCount: 0,
+                changesJobCount: 0,
+                currentJobCount: 0,
+                completed: false
+              });
+            }
+          }
+        }
+
+        await this.reportModel.insertMany(addedReport);
       }
 
       if (removedSubdivisions.length) {
