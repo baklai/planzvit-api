@@ -217,7 +217,7 @@ export class ReportsService {
         .updateMany(
           { department: new Types.ObjectId(department) },
           { $set: { completed: completed } },
-          { upsert: true }
+          { upsert: false }
         )
         .exec();
 
