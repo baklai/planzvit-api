@@ -35,7 +35,7 @@ export class DepartmentsService {
   }
 
   async findAll(query: PaginateQueryDto): Promise<PaginateResult<Department>> {
-    const { offset = 0, limit = 5, sort = { code: 1 }, filters = {} } = query;
+    const { offset = 0, limit = 5, sort = { createdAt: 1 }, filters = {} } = query;
 
     return await this.departmentModel.paginate(
       { ...filters },

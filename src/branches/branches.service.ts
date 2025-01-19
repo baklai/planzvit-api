@@ -35,7 +35,7 @@ export class BranchesService {
   }
 
   async findAll(query: PaginateQueryDto): Promise<PaginateResult<Branch>> {
-    const { offset = 0, limit = 5, sort = { code: 1 }, filters = {} } = query;
+    const { offset = 0, limit = 5, sort = { createdAt: 1 }, filters = {} } = query;
 
     return await this.branchModel.paginate(
       { ...filters },
