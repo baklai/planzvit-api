@@ -5,8 +5,8 @@ import { Model } from 'mongoose';
 import { Branch } from 'src/branches/schemas/branch.schema';
 import { Department } from 'src/departments/schemas/department.schema';
 import { Profile } from 'src/profiles/schemas/profile.schema';
-import { Service } from 'src/services/schemas/service.schema';
 import { Report } from 'src/reports/schemas/report.schema';
+import { Service } from 'src/services/schemas/service.schema';
 import { Syslog } from 'src/syslogs/schemas/syslog.schema';
 
 @Injectable()
@@ -88,12 +88,6 @@ export class StatisticsService {
       ]),
       this.reportModel.aggregate([
         {
-          $match: {
-            monthOfReport: currentMonthAndYear.currentMonth,
-            yearOfReport: currentMonthAndYear.currentYear
-          }
-        },
-        {
           $group: {
             _id: {
               department: '$department'
@@ -131,12 +125,6 @@ export class StatisticsService {
         }
       ]),
       this.reportModel.aggregate([
-        {
-          $match: {
-            monthOfReport: currentMonthAndYear.currentMonth,
-            yearOfReport: currentMonthAndYear.currentYear
-          }
-        },
         {
           $group: {
             _id: {
