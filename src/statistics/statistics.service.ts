@@ -36,18 +36,7 @@ export class StatisticsService {
     return { startOfWeek, endOfWeek };
   };
 
-  private getCurrentMonthAndYear = () => {
-    const currentDate = new Date();
-
-    const currentMonth = currentDate.getMonth() + 1;
-    const currentYear = currentDate.getFullYear();
-
-    return { currentMonth, currentYear };
-  };
-
   async dashboard() {
-    const currentMonthAndYear = this.getCurrentMonthAndYear();
-
     const [
       departmentsServicesCount,
       servicesCount,
