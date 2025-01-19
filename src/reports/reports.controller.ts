@@ -62,10 +62,10 @@ export class ReportsController {
   }
 
   @Post('archive')
-  @Roles([ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Boolean })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -102,10 +102,10 @@ export class ReportsController {
   }
 
   @Put('department/:id')
-  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Оновити запис за ID',
-    description: `Необхідні ролі: [${[ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Object })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

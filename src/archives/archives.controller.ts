@@ -28,10 +28,10 @@ export class ArchivesController {
   constructor(private readonly archivesService: ArchivesService) {}
 
   @Post(':department')
-  @Roles([ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Boolean })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -42,10 +42,10 @@ export class ArchivesController {
   }
 
   @Get(':department')
-  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description: `Необхідні ролі: [${[ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: [Archive] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

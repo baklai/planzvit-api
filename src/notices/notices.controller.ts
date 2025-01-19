@@ -28,10 +28,10 @@ export class NoticesController {
   constructor(private readonly noticesService: NoticesService) {}
 
   @Post()
-  @Roles([ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: 'Потрібені права адміністратора'
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiCreatedResponse({ description: 'Успіх', type: [Notice] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -42,7 +42,10 @@ export class NoticesController {
 
   @Get()
   @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
-  @ApiOperation({ summary: 'Get all records by ID', description: 'Необхідні дозволи: []' })
+  @ApiOperation({
+    summary: 'Get all records by ID',
+    description: `Необхідні ролі: [${[ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+  })
   @ApiOkResponse({ description: 'Успіх', type: [Notice] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   async findAll(@Request() req: Record<string, any>): Promise<Notice[]> {
@@ -50,8 +53,11 @@ export class NoticesController {
   }
 
   @Get('profiles')
-  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
-  @ApiOperation({ summary: 'Get all records by ID', description: 'Необхідні дозволи: []' })
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @ApiOperation({
+    summary: 'Get all records by ID',
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+  })
   @ApiOkResponse({ description: 'Успіх', type: [Profile] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   async findAllProfiles(): Promise<Profile[]> {
@@ -62,7 +68,7 @@ export class NoticesController {
   @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: 'Необхідні дозволи: []'
+    description: `Необхідні ролі: [${[ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Notice })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

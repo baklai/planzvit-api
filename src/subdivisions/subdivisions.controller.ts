@@ -32,10 +32,10 @@ export class SubdivisionsController {
   constructor(private readonly subdivisionsService: SubdivisionsService) {}
 
   @Post()
-  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Subdivision })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -46,10 +46,10 @@ export class SubdivisionsController {
   }
 
   @Get()
-  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+    description: `Необхідні ролі: [${[ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateSubdivision })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -58,10 +58,10 @@ export class SubdivisionsController {
   }
 
   @Get(':id')
-  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+    description: `Необхідні ролі: [${[ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Subdivision })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -91,10 +91,10 @@ export class SubdivisionsController {
   }
 
   @Delete(':id')
-  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Subdivision })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
