@@ -32,7 +32,7 @@ export class BranchesController {
   constructor(private readonly branchesService: BranchesService) {}
 
   @Post()
-  @Roles([ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
     description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
@@ -91,10 +91,10 @@ export class BranchesController {
   }
 
   @Delete(':id')
-  @Roles([ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Branch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

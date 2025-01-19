@@ -74,10 +74,10 @@ export class ReportsController {
   }
 
   @Post('department/:id')
-  @Roles([ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Boolean })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
