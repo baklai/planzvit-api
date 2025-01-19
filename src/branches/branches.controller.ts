@@ -1,28 +1,28 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards, Query } from '@nestjs/common';
-import { PaginateResult } from 'mongoose';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiNotFoundResponse,
+  ApiBearerAuth,
+  ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
-  ApiBearerAuth,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiBody,
   ApiTags
 } from '@nestjs/swagger';
+import { PaginateResult } from 'mongoose';
 
-import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { PaginateQueryDto } from 'src/common/dto/paginate-query.dto';
-import { ProfileRole } from 'src/profiles/schemas/profile.schema';
+import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+import { ProfileRole } from 'src/profiles/schemas/profile.schema';
 
 import { BranchesService } from './branches.service';
-import { Branch, PaginateBranch } from './schemas/branch.schema';
 import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateBranchDto } from './dto/update-branch.dto';
+import { Branch, PaginateBranch } from './schemas/branch.schema';
 
 @ApiTags('Служби/філії')
 @Controller('branches')
@@ -32,11 +32,10 @@ export class BranchesController {
   constructor(private readonly branchesService: BranchesService) {}
 
   @Post()
-  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Створити новий запис',
-    description:
-      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Branch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -47,11 +46,10 @@ export class BranchesController {
   }
 
   @Get()
-  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати всі записи',
-    description:
-      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: PaginateBranch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -60,11 +58,10 @@ export class BranchesController {
   }
 
   @Get(':id')
-  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Отримати запис за ID',
-    description:
-      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Branch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -78,8 +75,7 @@ export class BranchesController {
   @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Оновити запис за ID',
-    description:
-      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Branch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
@@ -95,11 +91,10 @@ export class BranchesController {
   }
 
   @Delete(':id')
-  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @Roles([ProfileRole.ADMINISTRATOR])
   @ApiOperation({
     summary: 'Видалити запис за ID',
-    description:
-      'Необхідні ролі: [' + [ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',') + ']'
+    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Branch })
   @ApiBadRequestResponse({ description: 'Поганий запит' })

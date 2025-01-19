@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsDate, IsMongoId, IsNumber, IsOptional, IsString } from 'class-validator';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { IsDate, IsMongoId, IsNumber, IsOptional, IsString } from 'class-validator';
+import { HydratedDocument } from 'mongoose';
 
 import { Branch } from 'src/branches/schemas/branch.schema';
 import { PaginateResponseDto } from 'src/common/dto/paginate-response.dto';
@@ -10,7 +10,7 @@ import { Service } from 'src/services/schemas/service.schema';
 import { Subdivision } from 'src/subdivisions/schemas/subdivision.schema';
 
 @Schema()
-export class Report {
+export class Archive {
   @ApiProperty({
     description: 'ID запису (унікальний)',
     example: '6299b5cebf44864bfcea36d4',
@@ -20,73 +20,41 @@ export class Report {
   @IsMongoId()
   readonly id: string;
 
+  @ApiProperty({ description: 'Дата створення', example: new Date() })
+  @IsDate()
+  @Prop({ type: Date, default: new Date() })
+  readonly completedAt: Date;
+
   @ApiProperty({ description: 'Ідентифікатор відділу', example: '6299b5cebf44864bfcea37a5' })
-  @IsString()
-  @IsMongoId()
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Department',
-    default: null,
-    autopopulate: false
-  })
+  @Prop({ type: Object, default: null })
   readonly department: Department;
 
   @ApiProperty({ description: 'Ідентифікатор сервісу', example: '6299b5cebf44864bfcea37a5' })
-  @IsString()
-  @IsMongoId()
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Service',
-    default: null,
-    autopopulate: false
-  })
+  @Prop({ type: Object, default: null })
   readonly service: Service;
 
   @ApiProperty({ description: 'Ідентифікатор служби/філії', example: '6299b5cebf44864bfcea37a5' })
-  @IsString()
-  @IsMongoId()
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Branch',
-    default: null,
-    autopopulate: false
-  })
+  @Prop({ type: Object, default: null })
   readonly branch: Branch;
 
   @ApiProperty({ description: 'Ідентифікатор підрозділу', example: '6299b5cebf44864bfcea37a5' })
-  @IsString()
-  @IsMongoId()
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Subdivision',
-    default: null,
-    autopopulate: false
-  })
+  @Prop({ type: Object, default: null })
   readonly subdivision: Subdivision;
 
-  @ApiPropertyOptional({ description: 'Кількість робіт за попередній місяць', example: 50 })
+  @ApiProperty({ description: 'Кількість робіт за попередній місяць', example: 50 })
   @IsNumber()
-  @IsOptional()
   @Prop({ type: Number, default: 0 })
   readonly previousJobCount: number;
 
-  @ApiPropertyOptional({ description: 'Кількість нових робіт за поточний місяць', example: -5 })
+  @ApiProperty({ description: 'Кількість нових робіт за поточний місяць', example: -5 })
   @IsNumber()
-  @IsOptional()
   @Prop({ type: Number, default: 0 })
   readonly changesJobCount: number;
 
-  @ApiPropertyOptional({ description: 'Кількість робіт всього на поточний місяць', example: 45 })
+  @ApiProperty({ description: 'Кількість робіт всього на поточний місяць', example: 45 })
   @IsNumber()
-  @IsOptional()
   @Prop({ type: Number, default: 0 })
   readonly currentJobCount: number;
-
-  @ApiPropertyOptional({ description: 'Статус на поточний час', example: false })
-  @IsBoolean()
-  @IsOptional()
-  @Prop({ type: Boolean, default: false })
-  readonly completed: boolean;
 
   @ApiPropertyOptional({ description: 'Дата створення запису', example: new Date() })
   @IsDate()
@@ -99,11 +67,11 @@ export class Report {
   readonly updatedAt: Date;
 }
 
-export class PaginateReport extends PaginateResponseDto {
-  @ApiProperty({ type: [Report], description: 'Масив документів' })
-  docs: Report[];
+export class PaginateArchive extends PaginateResponseDto {
+  @ApiProperty({ type: [Archive], description: 'Масив документів' })
+  docs: Archive[];
 }
 
-export type ReportDocument = HydratedDocument<Report>;
+export type ArchiveDocument = HydratedDocument<Archive>;
 
-export const ReportSchema = SchemaFactory.createForClass(Report);
+export const ArchiveSchema = SchemaFactory.createForClass(Archive);

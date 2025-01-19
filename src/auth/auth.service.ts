@@ -1,24 +1,24 @@
 import {
-  UnprocessableEntityException,
-  UnauthorizedException,
   BadRequestException,
   ConflictException,
+  Injectable,
   NotFoundException,
-  Injectable
+  UnauthorizedException,
+  UnprocessableEntityException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
-import { Model, Types } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
+import { Model, Types } from 'mongoose';
 
 import { ProfilesService } from 'src/profiles/profiles.service';
 import { Profile, ProfileRole } from 'src/profiles/schemas/profile.schema';
 
-import { RefreshToken } from './schemas/refreshToken.schema';
 import { SigninAuthDto } from './dto/signin-auth.dto';
 import { SignupAuthDto } from './dto/signup-auth.dto';
 import { TokensDto } from './dto/tokens.dto';
+import { RefreshToken } from './schemas/refreshToken.schema';
 
 @Injectable()
 export class AuthService {

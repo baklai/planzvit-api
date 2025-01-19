@@ -5,8 +5,9 @@ import { Model } from 'mongoose';
 import { Branch } from 'src/branches/schemas/branch.schema';
 import { Department } from 'src/departments/schemas/department.schema';
 import { Profile } from 'src/profiles/schemas/profile.schema';
-import { Service } from 'src/services/schemas/service.schema';
 import { Report } from 'src/reports/schemas/report.schema';
+import { Service } from 'src/services/schemas/service.schema';
+import { Subdivision } from 'src/subdivisions/schemas/subdivision.schema';
 import { Syslog } from 'src/syslogs/schemas/syslog.schema';
 
 @Injectable()
@@ -14,6 +15,7 @@ export class StatisticsService {
   constructor(
     @InjectModel(Department.name) private readonly departmentModel: Model<Department>,
     @InjectModel(Branch.name) private readonly branchModel: Model<Branch>,
+    @InjectModel(Subdivision.name) private readonly subdivisionModel: Model<Subdivision>,
     @InjectModel(Service.name) private readonly serviceModel: Model<Service>,
     @InjectModel(Profile.name) private readonly profileModel: Model<Profile>,
     @InjectModel(Report.name) private readonly reportModel: Model<Report>,
@@ -36,37 +38,26 @@ export class StatisticsService {
     return { startOfWeek, endOfWeek };
   };
 
-  private getCurrentMonthAndYear = () => {
-    const currentDate = new Date();
-
-    const currentMonth = currentDate.getMonth() + 1;
-    const currentYear = currentDate.getFullYear();
-
-    return { currentMonth, currentYear };
-  };
-
   async dashboard() {
-    const currentMonthAndYear = this.getCurrentMonthAndYear();
-
     const [
-      departmentsServicesCount,
+      departmentsCount,
       servicesCount,
       branchesCount,
       subdivisionsCount,
+      servicesInDepartmentsCount,
+      subdivisionsInBranchesCount,
       departmentChart,
       branchChart,
       departmentReportChart,
       branchReportChart
     ] = await Promise.all([
-      this.departmentModel
-        .aggregate([
-          { $unwind: '$services' },
-          { $group: { _id: '$services' } },
-          { $count: 'count' }
-        ])
-        .then(([{ count } = { count: 0 }]) => count),
+      this.departmentModel.countDocuments(),
       this.serviceModel.countDocuments(),
       this.branchModel.countDocuments(),
+      this.subdivisionModel.countDocuments(),
+      this.departmentModel
+        .aggregate([{ $unwind: '$services' }, { $count: 'count' }])
+        .then(([{ count } = { count: 0 }]) => count),
       this.branchModel
         .aggregate([{ $unwind: '$subdivisions' }, { $count: 'count' }])
         .then(([{ count } = { count: 0 }]) => count),
@@ -87,12 +78,6 @@ export class StatisticsService {
         }
       ]),
       this.reportModel.aggregate([
-        {
-          $match: {
-            monthOfReport: currentMonthAndYear.currentMonth,
-            yearOfReport: currentMonthAndYear.currentYear
-          }
-        },
         {
           $group: {
             _id: {
@@ -131,12 +116,6 @@ export class StatisticsService {
         }
       ]),
       this.reportModel.aggregate([
-        {
-          $match: {
-            monthOfReport: currentMonthAndYear.currentMonth,
-            yearOfReport: currentMonthAndYear.currentYear
-          }
-        },
         {
           $group: {
             _id: {
@@ -177,10 +156,12 @@ export class StatisticsService {
     ]);
 
     return {
-      departmentsServicesCount,
+      departmentsCount,
       servicesCount,
       branchesCount,
       subdivisionsCount,
+      servicesInDepartmentsCount,
+      subdivisionsInBranchesCount,
       departmentChart,
       branchChart,
       departmentReportChart,
@@ -194,12 +175,18 @@ export class StatisticsService {
       servicesCount,
       branchesCount,
       subdivisionsCount,
+      servicesInDepartmentsCount,
+      subdivisionsInBranchesCount,
       departmentChart,
       branchChart
     ] = await Promise.all([
       this.departmentModel.countDocuments(),
       this.serviceModel.countDocuments(),
       this.branchModel.countDocuments(),
+      this.subdivisionModel.countDocuments(),
+      this.departmentModel
+        .aggregate([{ $unwind: '$services' }, { $count: 'count' }])
+        .then(([{ count } = { count: 0 }]) => count),
       this.branchModel
         .aggregate([{ $unwind: '$subdivisions' }, { $count: 'count' }])
         .then(([{ count } = { count: 0 }]) => count),
@@ -226,6 +213,8 @@ export class StatisticsService {
       servicesCount,
       branchesCount,
       subdivisionsCount,
+      servicesInDepartmentsCount,
+      subdivisionsInBranchesCount,
       departmentChart,
       branchChart
     };
