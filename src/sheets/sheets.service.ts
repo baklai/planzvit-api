@@ -569,7 +569,6 @@ export class SheetsService {
           id: 1,
           name: 1,
           description: 1,
-          branch: 1,
           services: 1,
           totalJobCount: 1,
           totalPrice: 1
@@ -682,7 +681,6 @@ export class SheetsService {
           id: 1,
           name: 1,
           description: 1,
-          branch: 1,
           services: 1,
           totalJobCount: 1,
           totalPrice: 1
