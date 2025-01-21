@@ -18,6 +18,43 @@ export class SheetsService {
     @InjectModel(Branch.name) private readonly branchModel: Model<Branch>
   ) {}
 
+  async getAggregatedServices(): Promise<Record<string, any>> {
+    return await this.serviceModel.aggregate([
+      {
+        $lookup: {
+          from: 'reports',
+          localField: '_id',
+          foreignField: 'service',
+          as: 'reports'
+        }
+      },
+      {
+        $unwind: {
+          path: '$reports',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          _id: '$_id',
+          code: { $first: '$code' },
+          name: { $first: '$name' },
+          price: { $first: '$price' },
+          totalCount: { $sum: '$reports.currentJobCount' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          code: 1,
+          name: 1,
+          price: 1,
+          totalCount: 1
+        }
+      }
+    ]);
+  }
+
   async getReportById(department: string): Promise<Record<string, any>[]> {
     if (!Types.ObjectId.isValid(department)) {
       throw new BadRequestException('Недійсний ідентифікатор запису');

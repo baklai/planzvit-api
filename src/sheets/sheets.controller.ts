@@ -22,6 +22,18 @@ import { SheetsService } from './sheets.service';
 export class SheetsController {
   constructor(private readonly sheetsService: SheetsService) {}
 
+  @Get('services')
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @ApiOperation({
+    summary: 'Отримати всі записи сервісів',
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+  })
+  @ApiOkResponse({ description: 'Успіх', type: [Object] })
+  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  async getAggregatedServices(): Promise<Record<string, any>> {
+    return await this.sheetsService.getAggregatedServices();
+  }
+
   @Get('reports')
   @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
