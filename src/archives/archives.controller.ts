@@ -1,16 +1,12 @@
-import { Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
-  ApiConflictResponse,
-  ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiTags
 } from '@nestjs/swagger';
-import { DeleteResult } from 'mongoose';
 
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
@@ -40,45 +36,87 @@ export class ArchivesController {
     return await this.archivesService.getUniqueDatesByMonthAndYear();
   }
 
-  @Post(':department')
+  //  @Get('services')
+  //    @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  //    @ApiOperation({
+  //      summary: 'Отримати всі записи сервісів',
+  //      description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+  //    })
+  //    @ApiOkResponse({ description: 'Успіх', type: [Object] })
+  //    @ApiBadRequestResponse({ description: 'Поганий запит' })
+  //    async getAggregatedServices(): Promise<Record<string, any>> {
+  //      return await this.archivesService.getAggregatedServices();
+  //    }
+
+  @Get('reports')
   @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
-    summary: 'Створити новий запис',
+    summary: 'Отримати всі записи',
     description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
-  @ApiCreatedResponse({ description: 'Успіх', type: Boolean })
+  @ApiOkResponse({ description: 'Успіх', type: [Object] })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  @ApiConflictResponse({ description: 'Конфлікт даних' })
-  @ApiParam({ name: 'department', description: 'ID Ідентифікатор відділу', type: String })
-  async create(@Param('department') department: string): Promise<Boolean> {
-    return await this.archivesService.create(department);
+  async getReportByIds(): Promise<Record<string, any>[]> {
+    return await this.archivesService.getReportByIds();
   }
 
-  @Get(':department')
+  //  @Get('reports/:id')
+  //  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  //  @ApiOperation({
+  //    summary: 'Отримати всі записи',
+  //    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+  //  })
+  //  @ApiOkResponse({ description: 'Успіх', type: [Object] })
+  //  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  //  async getReportById(@Param('id') id: string): Promise<Record<string, any>[]> {
+  //    return await this.archivesService.getReportById(id);
+  //  }
+
+  @Get('branches')
   @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
-    summary: 'Отримати запис за ID',
+    summary: 'Отримати всі записи',
     description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
-  @ApiOkResponse({ description: 'Успіх', type: [Archive] })
+  @ApiOkResponse({ description: 'Успіх', type: Archive })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  @ApiNotFoundResponse({ description: 'Не знайдено' })
-  @ApiParam({ name: 'department', description: 'ID Ідентифікатор відділу', type: String })
-  async findOne(@Param('department') department: string): Promise<Archive[]> {
-    return await this.archivesService.findOne(department);
+  async getBranchByIds(): Promise<Archive> {
+    return await this.archivesService.getBranchByIds();
   }
 
-  @Delete(':department')
-  @Roles([ProfileRole.ADMINISTRATOR])
+  //  @Get('branches/:id')
+  //  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  //  @ApiOperation({
+  //    summary: 'Отримати всі записи',
+  //    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+  //  })
+  //  @ApiOkResponse({ description: 'Успіх', type: Archive })
+  //  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  //  async getBranchById(@Param('id') id: string): Promise<Archive> {
+  //    return await this.archivesService.getBranchById(id);
+  //  }
+
+  @Get('subdivisions')
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
-    summary: 'Видалити запис за ID',
-    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
+    summary: 'Отримати всі записи',
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
-  @ApiOkResponse({ description: 'Успіх', type: Object })
+  @ApiOkResponse({ description: 'Успіх', type: Archive })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
-  @ApiNotFoundResponse({ description: 'Не знайдено' })
-  @ApiParam({ name: 'department', description: 'ID Ідентифікатор відділу', type: String })
-  async removeOne(@Param('department') department: string): Promise<DeleteResult> {
-    return await this.archivesService.removeOne(department);
+  async getSubdivisionByIds(): Promise<Archive> {
+    return await this.archivesService.getSubdivisionByIds();
   }
+
+  //  @Get('subdivisions/:id')
+  //  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  //  @ApiOperation({
+  //    summary: 'Отримати всі записи',
+  //    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+  //  })
+  //  @ApiOkResponse({ description: 'Успіх', type: Archive })
+  //  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  //  async getSubdivisionById(@Param('id') id: string): Promise<Archive> {
+  //    return await this.archivesService.getSubdivisionById(id);
+  //  }
 }
