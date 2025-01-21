@@ -6,7 +6,7 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DeleteResult, Model, PaginateModel, Types } from 'mongoose';
+import { Model, PaginateModel, Types } from 'mongoose';
 
 import { Archive } from 'src/archives/schemas/archive.schema';
 import { Branch } from 'src/branches/schemas/branch.schema';
@@ -119,65 +119,20 @@ export class ReportsService {
     }
   }
 
-  async createReportByDepartmentId(departmentId: string): Promise<Boolean> {
+  async createReportByNextPeriod(): Promise<Boolean> {
     try {
-      if (!Types.ObjectId.isValid(departmentId)) {
-        throw new BadRequestException('Недійсний ідентифікатор відділу');
-      }
-
-      const reportCount = await this.reportModel.countDocuments({
-        department: new Types.ObjectId(departmentId)
-      });
-
-      if (reportCount) {
-        await this.reportModel.aggregate([
-          {
-            $addFields: {
-              previousJobCount: '$currentJobCount',
-              completed: false,
-              changesJobCount: 0
-            }
-          },
-          {
-            $merge: { into: 'reports', whenMatched: 'merge', whenNotMatched: 'fail' }
+      await this.reportModel.aggregate([
+        {
+          $addFields: {
+            previousJobCount: '$currentJobCount',
+            completed: false,
+            changesJobCount: 0
           }
-        ]);
-      } else {
-        const department = await this.departmentModel
-          .findById(departmentId)
-          .populate('services', { code: 1, name: 1, price: 1 })
-          .exec();
-
-        if (!department) {
-          throw new NotFoundException('Запис відділу не знайдено');
+        },
+        {
+          $merge: { into: 'reports', whenMatched: 'merge', whenNotMatched: 'fail' }
         }
-
-        const branches = await this.branchModel
-          .find({})
-          .populate('subdivisions', { name: 1, description: 1 })
-          .exec();
-
-        const createdReports = [];
-
-        for (const service of department.services) {
-          for (const branch of branches) {
-            for (const subdivision of branch.subdivisions) {
-              createdReports.push({
-                department: department.id,
-                service: service.id,
-                branch: branch.id,
-                subdivision: subdivision.id,
-                previousJobCount: 0,
-                changesJobCount: 0,
-                currentJobCount: 0,
-                completed: false
-              });
-            }
-          }
-        }
-
-        await this.reportModel.insertMany(createdReports);
-      }
+      ]);
 
       return true;
     } catch (error) {
@@ -202,7 +157,7 @@ export class ReportsService {
       .exec();
   }
 
-  async updateReportByDepartmentId(
+  async completedReportByDepartmentId(
     department: string,
     updateReportStatusDto: UpdateReportStatusDto
   ): Promise<Record<string, any>> {
@@ -232,21 +187,5 @@ export class ReportsService {
       }
       throw error;
     }
-  }
-
-  async removeReportByDepartmentId(department: string): Promise<DeleteResult> {
-    if (!Types.ObjectId.isValid(department)) {
-      throw new BadRequestException('Недійсний ідентифікатор запису');
-    }
-
-    const deleteResult = await this.reportModel
-      .deleteMany({ department: new Types.ObjectId(department) })
-      .exec();
-
-    if (!deleteResult) {
-      throw new NotFoundException('Запис не знайдено');
-    }
-
-    return deleteResult;
   }
 }

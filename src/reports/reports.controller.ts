@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -11,7 +11,6 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger';
-import { DeleteResult } from 'mongoose';
 
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { AccessTokenGuard } from 'src/common/guards/accessToken.guard';
@@ -52,7 +51,7 @@ export class ReportsController {
   @Get('filters')
   @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
-    summary: 'Отримати всі суміжні записи',
+    summary: 'Отримати фільтри',
     description: `Необхідні ролі: [${[ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх' })
@@ -64,7 +63,7 @@ export class ReportsController {
   @Post('archive')
   @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
-    summary: 'Створити новий запис',
+    summary: 'Створити архів записів поточного періода',
     description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Boolean })
@@ -73,24 +72,23 @@ export class ReportsController {
     return await this.reportsService.createReportArchive();
   }
 
-  @Post('department/:id')
+  @Post('report')
   @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
-    summary: 'Створити новий запис',
+    summary: 'Створити записи наступного періода',
     description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiCreatedResponse({ description: 'Успіх', type: Boolean })
   @ApiBadRequestResponse({ description: 'Поганий запит' })
   @ApiConflictResponse({ description: 'Конфлікт даних' })
-  @ApiParam({ name: 'id', description: 'ID Ідентифікатор відділу', type: String })
-  async createReportByDepartmentId(@Param('id') id: string): Promise<Boolean> {
-    return await this.reportsService.createReportByDepartmentId(id);
+  async createReportByNextPeriod(): Promise<Boolean> {
+    return await this.reportsService.createReportByNextPeriod();
   }
 
   @Get('department/:id')
   @Roles([ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
-    summary: 'Отримати запис за ID',
+    summary: 'Отримати запис за ID відділу',
     description: `Необхідні ролі: [${[ProfileRole.USER, ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: [Report] })
@@ -104,7 +102,7 @@ export class ReportsController {
   @Put('department/:id')
   @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({
-    summary: 'Оновити запис за ID',
+    summary: 'Оновити запис за ID відділу',
     description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
   })
   @ApiOkResponse({ description: 'Успіх', type: Object })
@@ -113,24 +111,10 @@ export class ReportsController {
   @ApiConflictResponse({ description: 'Конфлікт даних' })
   @ApiParam({ name: 'id', description: 'ID Ідентифікатор відділу', type: String })
   @ApiBody({ description: "Об'єкт тіла запиту", type: UpdateReportStatusDto })
-  async updateReportByDepartmentId(
+  async completedReportByDepartmentId(
     @Param('id') id: string,
     @Body() updateReportStatusDto: UpdateReportStatusDto
   ): Promise<Record<string, any>> {
-    return await this.reportsService.updateReportByDepartmentId(id, updateReportStatusDto);
-  }
-
-  @Delete('department/:id')
-  @Roles([ProfileRole.ADMINISTRATOR])
-  @ApiOperation({
-    summary: 'Видалити запис за ID',
-    description: `Необхідні ролі: [${[ProfileRole.ADMINISTRATOR].join(',')}]`
-  })
-  @ApiOkResponse({ description: 'Успіх', type: Object })
-  @ApiBadRequestResponse({ description: 'Поганий запит' })
-  @ApiNotFoundResponse({ description: 'Не знайдено' })
-  @ApiParam({ name: 'id', description: 'ID Ідентифікатор відділу', type: String })
-  async removeReportByDepartmentId(@Param('id') id: string): Promise<DeleteResult> {
-    return await this.reportsService.removeReportByDepartmentId(id);
+    return await this.reportsService.completedReportByDepartmentId(id, updateReportStatusDto);
   }
 }
