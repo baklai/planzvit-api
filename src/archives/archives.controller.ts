@@ -27,6 +27,19 @@ import { Archive } from './schemas/archive.schema';
 export class ArchivesController {
   constructor(private readonly archivesService: ArchivesService) {}
 
+  @Get()
+  @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
+  @ApiOperation({
+    summary: 'Отримати запис за ID',
+    description: `Необхідні ролі: [${[ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR].join(',')}]`
+  })
+  @ApiOkResponse({ description: 'Успіх', type: [String] })
+  @ApiBadRequestResponse({ description: 'Поганий запит' })
+  @ApiNotFoundResponse({ description: 'Не знайдено' })
+  async getUniqueDatesByMonthAndYear(): Promise<string[]> {
+    return await this.archivesService.getUniqueDatesByMonthAndYear();
+  }
+
   @Post(':department')
   @Roles([ProfileRole.MODERATOR, ProfileRole.ADMINISTRATOR])
   @ApiOperation({

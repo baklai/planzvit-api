@@ -13,6 +13,32 @@ import { Archive } from './schemas/archive.schema';
 export class ArchivesService {
   constructor(@InjectModel(Archive.name) private readonly archiveModel: Model<Archive>) {}
 
+  async getUniqueDatesByMonthAndYear(): Promise<string[]> {
+    const result = await this.archiveModel.aggregate([
+      {
+        $project: {
+          monthYear: { $dateToString: { format: '%Y-%m', date: '$completedAt' } }
+        }
+      },
+      {
+        $group: {
+          _id: '$monthYear'
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      },
+      {
+        $project: {
+          _id: 0,
+          monthYear: '$_id'
+        }
+      }
+    ]);
+
+    return result.map(item => item.monthYear);
+  }
+
   async create(departmentId: string): Promise<Boolean> {
     try {
       if (!Types.ObjectId.isValid(departmentId)) {
