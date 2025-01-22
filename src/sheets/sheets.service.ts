@@ -44,6 +44,9 @@ export class SheetsService {
         }
       },
       {
+        $sort: { _id: 1 }
+      },
+      {
         $project: {
           _id: 0,
           code: 1,
